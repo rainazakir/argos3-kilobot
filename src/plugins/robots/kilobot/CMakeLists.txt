@@ -74,10 +74,10 @@ target_link_libraries(argos3plugin_${ARGOS_BUILD_FOR}_kilobot
   argos3plugin_${ARGOS_BUILD_FOR}_pointmass3d)
 if(ARGOS_QTOPENGL_FOUND)
   target_link_libraries(argos3plugin_${ARGOS_BUILD_FOR}_kilobot argos3plugin_${ARGOS_BUILD_FOR}_qtopengl)
-  if(RT_FOUND)
-    target_link_libraries(argos3plugin_simulator_kilobot ${RT_LIBRARY})
-  endif(RT_FOUND)
 endif(ARGOS_QTOPENGL_FOUND)
+if(RT_FOUND)
+  target_link_libraries(argos3plugin_simulator_kilobot ${RT_LIBRARY})
+endif(RT_FOUND)
 
 #
 # Create kilolib

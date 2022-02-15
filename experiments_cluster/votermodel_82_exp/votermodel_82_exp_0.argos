@@ -1,0 +1,164 @@
+<?xml version="1.0" ?>
+<argos-configuration>
+
+  <!-- ************************* -->
+  <!-- * General configuration * -->
+  <!-- ************************* -->
+  <framework>
+    <system threads="1" />
+    <experiment length="1500"
+                ticks_per_second="30"
+                random_seed="10168" />
+  </framework>
+
+  <!-- *************** -->
+  <!-- * Controllers * -->
+  <!-- *************** -->
+  <controllers>
+    <kilobot_controller id="red">
+      <actuators>
+        <kilobot_led implementation="default" />
+        <differential_steering implementation="default" />
+        <kilobot_communication implementation="default" />
+      </actuators>
+      <sensors>
+        <kilobot_communication implementation="default" medium="kilocomm" show_rays="true" />
+      </sensors>
+      <params behavior="/home/rzakir/Programs/argos3-kilobot/build/examples/behaviors/testred" />
+
+
+    </kilobot_controller>
+
+    <kilobot_controller id="blue">
+      <actuators>
+        <kilobot_led implementation="default" />
+        <differential_steering implementation="default" />
+        <kilobot_communication implementation="default" />
+      </actuators>
+      <sensors>
+        <kilobot_communication implementation="default" medium="kilocomm" show_rays="true" />
+      </sensors>
+      <params behavior="/home/rzakir/Programs/argos3-kilobot/build/examples/behaviors/testblue" />
+
+
+    </kilobot_controller>
+<!--
+    <kilobot_controller id="speaker">
+      <actuators>
+        <kilobot_led implementation="default" />
+        <kilobot_communication implementation="default" />
+      </actuators>
+      <sensors>
+        <kilobot_communication implementation="default" medium="kilocomm" show_rays="true" />
+      </sensors>
+      <params behavior="/build/examples/behaviors/test_speaker_mod" />
+    </kilobot_controller>
+-->
+ 
+
+  </controllers>
+
+
+  <!-- ****************** -->
+  <!-- * Loop functions * -->
+  <!-- ****************** -->
+
+<loop_functions 
+    library="/home/rzakir/Programs/argos3-kilobot/build/examples/loop_functions/debug_loop_functions/libdebug_loop_functions"
+    label="debug_loop_functions">
+
+        
+    <variables 
+    datafilename="votermodel_82_exp_0.txt">
+    </variables>
+
+
+</loop_functions>
+
+
+
+  <!-- *********************** -->
+  <!-- * Arena configuration * -->
+  <!-- *********************** -->
+
+
+
+  <arena size="2, 2, 1" center="1,1,0.5">
+    <box id="wall_north" size="2,0.01,0.03" movable="false" >
+      <body position="1,2,0" orientation="0,0,0" />
+    </box>
+    
+    <box id="wall_south" size="2,0.01,0.03" movable="false">
+        <body position="1,0,0" orientation="0,0,0" />
+    </box>
+    
+    <box id="wall_east" size="0.01,2,0.03"  movable="false">
+        <body position="2,1,0" orientation="0,0,0" />
+    </box>
+
+    <box id="wall_west" size="0.01,2,0.03"  movable="false">
+        <body position="0,1,0" orientation="0,0,0" />
+    </box>
+
+    <box id="wall_east_1m" size="0.01,1,0.03"  movable="false">
+        <body position="1,0.5,0" orientation="0,0,0" />
+    </box>
+    <box id="wall_north_1m" size="1,0.01,0.03" movable="false">
+      <body position="0.5,1,0" orientation="0,0,0" />
+    </box>
+
+    <distribute>
+        <position method="uniform" min="0.1,0.1,0" max="0.9,0.9,0" />
+        <orientation method="uniform" min="0,0,0" max="360,0,0" />
+        <entity quantity="25" max_trials="10">
+            <kilobot id="kbc3" communication_range="0.1">
+                <controller config="blue"/>
+                <dynamics2d friction="0.7" />
+            </kilobot>
+        </entity>
+    </distribute>
+
+  <distribute>
+        <position method="uniform" min="0.1,0.1,0" max="0.9,0.9,0" />
+        <orientation method="uniform" min="0,0,0" max="360,0,0" />
+        <entity quantity="25" max_trials="10">
+            <kilobot id="kbc4" communication_range="0.1">
+                <controller config="red"/>
+                <dynamics2d friction="0.7" />
+            </kilobot>
+        </entity>
+    </distribute>
+
+
+
+  </arena>
+
+  <!-- ******************* -->
+  <!-- * Physics engines * -->
+  <!-- ******************* -->
+  <physics_engines>
+    <dynamics2d id="dyn2d" />
+  </physics_engines>
+
+  <!-- ********* -->
+  <!-- * Media * -->
+  <!-- ********* -->
+  <media>
+    <kilobot_communication id="kilocomm" />
+  </media>
+
+  <!-- ****************** -->
+  <!-- * Visualization * -->
+  <!-- ****************** -->
+
+  <!--
+  <visualization>
+    <qt-opengl>
+      <camera>
+        <placement idx="0" position="-0.126801,-0.00109986,0.249553" look_at="0.303994,-0.00540795,-0.652886" lens_focal_length="20" />
+        <placement idx="1" position="-0.0229259,-0.177184,0.0725521" look_at="0.0273839,0.812385,-0.0624333" lens_focal_length="20" />
+      </camera>
+    </qt-opengl>
+  </visualization>
+-->
+</argos-configuration>

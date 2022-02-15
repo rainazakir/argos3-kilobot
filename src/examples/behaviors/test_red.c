@@ -79,7 +79,7 @@ double ran_expo(double lambda){
    //  double q3 = 0.003;//***
     // double q1 = 0.006;//***
 double q3 = 0.003;//***
-double q1 = 0.009;//***
+double q1 = 0.003;//***
 double qnorm = 0.001; //***--> time to be in latent state
  int checknum = 2;
  int checkother = 1;

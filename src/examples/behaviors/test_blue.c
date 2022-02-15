@@ -80,7 +80,7 @@ double timer;
 //double q1 = 0.006;//***
 
 double q3 = 0.003;//***
-double q1 = 0.009;//***
+double q1 = 0.003;//***
 double qnorm = 0.001; //***affect duration for latent
 int checknum = 1;
 int checkother = 2;

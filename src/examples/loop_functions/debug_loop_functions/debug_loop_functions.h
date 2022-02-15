@@ -20,7 +20,7 @@ class CCI_KilobotController;
 // DEBUGGING INFORMATION
 //
 // This is where the struct debug_info_t is defined.
-#include </Users/rzakir/Documents/argosim/argos3-kilobot/src/examples/behaviors/test_debug.h>
+#include </home/rzakir/Programs/argos3-kilobot/src/examples/behaviors/test_debug.h>
 //
 ////////////////////////////////////////
 

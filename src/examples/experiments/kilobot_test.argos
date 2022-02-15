@@ -5,10 +5,10 @@
   <!-- * General configuration * -->
   <!-- ************************* -->
   <framework>
-    <system threads="0" />
-    <experiment length="0"
+    <system threads="1" />
+    <experiment length="exp_length"
                 ticks_per_second="30"
-                random_seed="89090026" />
+                random_seed="randomseed" />
   </framework>
 
   <!-- *************** -->
@@ -24,7 +24,7 @@
       <sensors>
         <kilobot_communication implementation="default" medium="kilocomm" show_rays="true" />
       </sensors>
-      <params behavior="build/examples/behaviors/testred" />
+      <params behavior="behaviourred" />
 
 
     </kilobot_controller>
@@ -38,11 +38,11 @@
       <sensors>
         <kilobot_communication implementation="default" medium="kilocomm" show_rays="true" />
       </sensors>
-      <params behavior="build/examples/behaviors/testblue" />
+      <params behavior="behaviourblue" />
 
 
     </kilobot_controller>
-
+<!--
     <kilobot_controller id="speaker">
       <actuators>
         <kilobot_led implementation="default" />
@@ -51,19 +51,10 @@
       <sensors>
         <kilobot_communication implementation="default" medium="kilocomm" show_rays="true" />
       </sensors>
-      <params behavior="build/examples/behaviors/test_speaker_mod" />
+      <params behavior="/build/examples/behaviors/test_speaker_mod" />
     </kilobot_controller>
-
-    <kilobot_controller id="listener">
-      <actuators>
-        <kilobot_led implementation="default" />
-        <kilobot_communication implementation="default" />
-      </actuators>
-      <sensors>
-        <kilobot_communication implementation="default" medium="kilocomm" show_rays="true" />
-      </sensors>
-      <params behavior="build/examples/behaviors/test_listener_mod" />
-    </kilobot_controller>
+-->
+ 
 
   </controllers>
 
@@ -73,7 +64,7 @@
   <!-- ****************** -->
 
 <loop_functions 
-    library="build/examples/loop_functions/debug_loop_functions/libdebug_loop_functions"
+    library="loopfunctionpath"
     label="debug_loop_functions">
 
         
@@ -119,7 +110,7 @@
     <distribute>
         <position method="uniform" min="0.1,0.1,0" max="0.9,0.9,0" />
         <orientation method="uniform" min="0,0,0" max="360,0,0" />
-        <entity quantity="25" max_trials="10">
+        <entity quantity="num_robots" max_trials="10">
             <kilobot id="kbc3" communication_range="0.1">
                 <controller config="blue"/>
                 <dynamics2d friction="0.7" />
@@ -130,7 +121,7 @@
   <distribute>
         <position method="uniform" min="0.1,0.1,0" max="0.9,0.9,0" />
         <orientation method="uniform" min="0,0,0" max="360,0,0" />
-        <entity quantity="25" max_trials="10">
+        <entity quantity="num_robots" max_trials="10">
             <kilobot id="kbc4" communication_range="0.1">
                 <controller config="red"/>
                 <dynamics2d friction="0.7" />
