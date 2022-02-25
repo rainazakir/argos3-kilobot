@@ -28,11 +28,21 @@
 
 
 
-
-//CODE FOR MAJORITY RULE WITH k=5 with sticky defence in blue option with lower quality.
 //YOU WILL NEED TO VARY PARAMETER with *** to run best with your bots
 
+//set these up
 
+#define SWARMSIZE 50
+
+#define MODEL 1 // 0 --> Voter Model      1 --> CrossInhibition
+
+double noise = 0.5; // SET THIS TO -1 FOR NO NOISE 
+
+
+//opinion = A -->1   //opinion = B --> 2  //uncommited = C --> 3
+int currentopinion = 1; //1
+
+//////////////////////////////////////////////////////////////////////
 
 /* Enum for different motion types */
 typedef enum {
@@ -41,7 +51,11 @@ typedef enum {
 	TURN_LEFT,
 	TURN_RIGHT,
 } motion_t;
+
+
 bool broadcast_msg = false;
+int received_option;
+int received_uid;
 unsigned int turning_ticks = 0;
 const uint8_t max_turning_ticks = 150; //*** constant to set maximum rotation to turn during random walk 
 const uint32_t max_straight_ticks = 300; //*** set the time to walk straight beofre randomnly turning
@@ -49,9 +63,8 @@ const uint32_t max_straight_ticks = 300; //*** set the time to walk straight beo
 uint32_t last_motion_ticks = 0;
 //uint32_t last_broadcast_ticks = 0;
 //uint32_t last_update_ticks = 0;
-int kilo_ticks2 = 0;
-int received_option;
-int received_uid;
+int last_changed = 0;
+
 message_t message;
 
 // Flag to keep track of new messages.
@@ -60,36 +73,47 @@ message_t received;
 int distance;
 // Flag to keep track of message transmission.
 int last_changed;
-bool calibrated = false;
+//bool calibrated = false;
 
 int message_sent = 0;
-//opinion = A
-int currentopinion = 1;
 
-int neighbourid[25] = {};//***change the size if running with more than 25 kilobots--> mention no of robots used in size
-int neighbouropinion[25] = {}; //*** k->5, change to vary according to the majority rule
+int neighbourid[SWARMSIZE] = {};//***change the size if running with more than 25 kilobots--> mention no of robots used in size
+int neighbouropinion[SWARMSIZE] = {}; //right now voter *** k->5, change to vary according to the majority rule
 motion_t current_motion_type = STOP;
+
+//sets the qratios, 6/3=2, change values to vary
+   //  double q3 = 0.003;//***
+    // double q1 = 0.006;//***
+double timer; // to hold time to be in each state 
+double q3 = 0.003;//***qualities are same for A and B for now
+double q1 = 0.003;//***qualities are same for A and B for now
+double qnorm = 0.001; //***--> time to be in latent state
+
+
+//int checknum = 2;
+//int checkother = 1;
+//int checkloop = 0;
+
+int state = 0; //0--> ND, 1-->D, 2-->Voting // start in exploration state 
+
+ //Diseemination --> 1
+ //Voting--> 2
+//int checknoise = 0;  // 0 --> no ,  1 --> yes
+
+ ///////////////////FUNCTIONS 
+
 double ran_expo(double lambda){
     double u;
     u = rand() / (RAND_MAX + 0.05);
     return -log(1- u) / lambda;
 }
- double timer;
-//sets the qratios, 6/3=2, change values to vary
-   //  double q3 = 0.003;//***
-    // double q1 = 0.006;//***
-double q3 = 0.003;//***
-double q1 = 0.003;//***
-double qnorm = 0.001; //***--> time to be in latent state
- int checknum = 2;
- int checkother = 1;
 
-int checkloop = 0;
+double r2()
+{
+    return (double)rand() / (double)RAND_MAX ;
+}
 
- int state = 0; //ND
- //Diseemination --> 1
- //Voting--> 2
- 
+
 void set_motion( motion_t new_motion_type ) {
 	if( current_motion_type != new_motion_type ){
 	
@@ -114,6 +138,27 @@ void set_motion( motion_t new_motion_type ) {
 	}
 }
 
+int countOccurrences(int arr[], int n, int x) 
+{ 
+    int res = 0; 
+    for (int i=0; i<n; i++) 
+        if (x == arr[i]) 
+          res++; 
+    return res; 
+} 
+
+int find_index(int a[], int num_elements, int value)
+{
+   int ii;
+   for (ii=0; ii<num_elements; ii++)
+   {
+	 if (a[ii] == value)
+	 {
+	    return(value);  /* it was found */
+	 }
+   }
+   return(-1);  /* if it was not found */
+}
 
 
 void random_walk(){
@@ -150,126 +195,123 @@ void random_walk(){
    }
 }
 
-void setup()
-{
+void gotoexploration(){
     
-    srand(rand_hard());
-    	/* Initialise motion variables */
-	 if (currentopinion == 1){
-  	                 //set_motion( FORWARD );//start moving forward
-                     random_walk();
-           //                   set_color(RGB(1, 1, 0));
-            //delay(1000);
-            //set_color(RGB(0, 0, 0));
-        } else if (currentopinion == 2){
-           	         //set_motion( FORWARD );//start moving forward
-                     random_walk();
-                   //           set_color(RGB(1, 1, 0));
-         //   delay(1000);
-         //   set_color(RGB(0, 0, 0));
-          //  set_motion( STOP );
-        }
-    
-	last_motion_ticks = rand() % max_straight_ticks + 1;
+        random_walk();
+        if (currentopinion == 1){
+            set_color(RGB(1, 0, 0));
 
-    last_changed = kilo_ticks;
-    message.type = NORMAL;
-    // Quality A=1, B=2
-    message.data[0] = 1;
-    //Opinion A=1 , B=3
-    //red
+        } else if (currentopinion == 2){
+            set_color(RGB(0, 1, 1));
+
+        }else{
+            set_color(RGB(1, 1, 0)); //uncomitted
+
+        }
+
+
+         if ((kilo_ticks - last_changed) < timer) {//check if still in latent mode or not
+         } else{
+             
+            state = 1;//got to Dissemination mode
+            if (currentopinion == 1){
+                timer =  ran_expo(q3); //time for dissem if opinionA
+            }else{
+                 timer =  ran_expo(q1);//time for dissem if opinionB
+            }
+            last_changed = kilo_ticks;
+            // last_changed = 0;
+            //kilo_ticks = 0;
+           set_color(RGB(0, 0, 0));
+           // set_color(RGB(0, 0, 0));
+    
+     } 
+    
+}
+
+
+void donoisyswitch(){
+         if (MODEL == 1){ //if cross inhibition and noise switching
+            
+              int checkforAorBswitch = rand() % 2; // if 0 -->  switch to A ,  if 1 --> switch to B
+
+              if(checkforAorBswitch == 0){ //A
+
+                currentopinion = 1;
+
+                set_color(RGB(1, 0, 0));
+
+              }
+              if(checkforAorBswitch == 1){ //B
+
+                currentopinion = 2;
+                set_color(RGB(0, 0, 1));
+
+              }
+
+            
+        }
+        
+        
+        if (MODEL == 0){ //if voter model and noise switching
+        
+
+            if (currentopinion == 1){   //if A then switch to b
+              currentopinion = 2;
+
+                
+            }else{   // if B then switch to A
+              currentopinion = 1;
+
+
+            }
+
+
+        }
     message.data[1] = currentopinion;
     message.data[2] = kilo_uid;
     message.crc = message_crc(&message);
-    timer =  ran_expo(qnorm);
-}
-
-int countOccurrences(int arr[], int n, int x) 
-{ 
-    int res = 0; 
-    for (int i=0; i<n; i++) 
-        if (x == arr[i]) 
-          res++; 
-    return res; 
-} 
-
-int find_index(int a[], int num_elements, int value)
-{
-   int ii;
-   for (ii=0; ii<num_elements; ii++)
-   {
-	 if (a[ii] == value)
-	 {
-	    return(value);  /* it was found */
-	 }
-   }
-   return(-1);  /* if it was not found */
+        
+           
+    
+    
 }
 
 
-void loop() {
+void gotodissemination(){
 
-     //////////STATE 0-Latent//////////////////////
+       random_walk();
 
-    if (state == 0){
-        random_walk();
-        if (currentopinion == 1){
-            set_color(RGB(2, 0, 0));
-        } else if (currentopinion == 2){
-            set_color(RGB(0, 2, 2));
-        }
+       if ((kilo_ticks - last_changed) < timer) { //if within dessimnation time
+           if(currentopinion != 3){
+       		broadcast_msg = true;
+               
+           }else{
+               
+                   set_color(RGB(2, 2, 0));
 
+           }
 
-     if (checkloop == 0){
-         checkloop = 1;
-      if ((kilo_ticks - last_changed) < timer) {
-      } else{
-           
-            state = 1;
-            if (currentopinion == 1){
-                timer =  ran_expo(q3);
-            }else{
-                 timer =  ran_expo(q1);
-            }
-            kilo_ticks2 = kilo_ticks;
-
-            set_color(RGB(0, 0, 0));
-    
-      }  
-         
-     }else{
-         if ((kilo_ticks - kilo_ticks2) < timer) {
-      } else{
-           
-            state = 1;
-            if (currentopinion == 1){
-                timer =  ran_expo(q3);
-            }else{
-                 timer =  ran_expo(q1);
-            }
-            kilo_ticks2 = kilo_ticks;
-     //       last_changed = 0;
-            //kilo_ticks = 0;
-           // set_color(RGB(0, 0, 0));
-    
-      }  
-         
-     } 
-    }
+        }else{
+           last_changed = kilo_ticks;
+           state = 2;//got to voting state
+       }
+              random_walk();
     
     
-         //////////STATE 2-Voting//////////////////////
+    
+}
 
-    if (state == 2){
-
-      int x = 0;
-
+void vote(){
+     int x = 0;
+        
+     //collect opinions from neighbours and their ids to ensure they vote once
      for(int i=0; i<450;i++){//*** increase i loop if more time in voting is required
          delay(5);
          if(x<=20){
           if (new_message == 1){
            new_message = 0;
-           int index = find_index(neighbourid, 25, received_uid);//*** change according to array size
+           int index = find_index(neighbourid, SWARMSIZE, received_uid);//*** change according to array size
 //           printf("index is %d",index);
            if (index == -1){//if neighbour has not already voted
             if (distance <= 200){//*** if distance less tahn 200
@@ -288,20 +330,58 @@ void loop() {
   //neighbouropinion[x] = currentopinion;//add own opinion to list of opinion
    //x = x+1;
    
-       if(x>=1){
+       if(x>=1){ // if an opinion from a neighbouring robot was attained
+           
         int check_for_no_val = 0;  
 
-        for (int v = 0; v < 25; ++v){
+        for (int v = 0; v < SWARMSIZE; ++v){
             if(neighbouropinion[v] != 0) {
-                check_for_no_val = check_for_no_val + 1;
+                check_for_no_val = check_for_no_val + 1;  //increment when an opinion is found
             }
         }
-          int val_choose = (rand() % ((check_for_no_val-1) + 1 - 0)) + 0;
+        
+        //randonmly pick an opinion   
+        int val_choose = (rand() % ((check_for_no_val-1) + 1 - 0)) + 0;
+           
+           
+        if (MODEL == 1){ //if cross inhibition
+           
+                if(currentopinion != 3){ //if not uncommited
 
+                      if (neighbouropinion[val_choose] != currentopinion){ //check if your opinion is not equal 
+                           //go uncommited
+                            currentopinion = 3;    
+                            set_color(RGB(1, 1, 0));
+
+
+                      }else{
+
+                          currentopinion = neighbouropinion[val_choose];
+
+                      }
+
+                }else{
+
+                  currentopinion = neighbouropinion[val_choose];
+
+
+
+                }
+
+            
+        }
+        if (MODEL == 0){ //switch randomly to an opinion
+            
           currentopinion = neighbouropinion[val_choose];
-          message.data[1] = currentopinion;
-          message.data[2] = kilo_uid;
-          message.crc = message_crc(&message);
+
+        }
+        
+        message.data[1] = currentopinion;
+        message.data[2] = kilo_uid;
+        message.crc = message_crc(&message); 
+     
+           
+           //if no neighbour found, stay with current opinion
        }else{
           //currentopinion = current_opinion;
           message.data[1] = currentopinion;
@@ -316,34 +396,98 @@ void loop() {
 
                 
      //clear the neighbour arrays
-     for (int n = 0; n < 25; ++n){
+     for (int n = 0; n < SWARMSIZE; ++n){
         neighbourid[n] = 0;        
      }
-     for (int m = 0; m < 25; ++m){
+     for (int m = 0; m < SWARMSIZE; ++m){
         neighbouropinion[m] = 0;        
      }
-            
+            //go to exploration state
             state = 0;
             timer =  ran_expo(qnorm);
-            kilo_ticks2 = kilo_ticks;
+            last_changed = kilo_ticks;
             //kilo_ticks = 0;
-    set_color(RGB(0, 0, 0));
-   }
+            set_color(RGB(0, 0, 0));    
+    
+    
+    
+    
+}
+
+
+////////////////////
+
+void setup()
+{
+    
+    srand(rand_hard());
+    
+    random_walk();
+
+    //random timing for motion 
+	last_motion_ticks = rand() % max_straight_ticks + 1;
+
+    //save the current ticks for comparison later on
+    last_changed = kilo_ticks;
+    message.type = NORMAL;
+    // Quality A=1, B=2
+    message.data[0] = currentopinion;
+    //Opinion A=1 , B=2, U =3
+    //red
+    message.data[1] = currentopinion;
+    message.data[2] = kilo_uid;
+    message.crc = message_crc(&message);
+    timer =  ran_expo(qnorm);
+}
+
+
+
+void loop() {
+
+     //////////STATE 0-Latent: Exploration//////////////////////
+    
+
+
+    if (state == 0){
+        
+        gotoexploration();
+        
+    }
+    
+    
+         //////////STATE 2-Voting//////////////////////
+
+    if (state == 2){ 
+        
+        //get the random number 0-1
+        double u = r2();
+    
+        
+        if (u <= noise){ //switch to noise check
+            set_color(RGB(0, 2, 0));
+            delay(1000);
+            
+            //do switching
+        
+            donoisyswitch();
+
+    } else{ //Go to Voting
+            
+        vote();
+        
+   
+    }
+        
+}
    
    
    
      //////////STATE 1-Dissemination//////////////////////
    if(state ==1 ){
-       random_walk();
+       
+       gotodissemination();
 
-       if ((kilo_ticks - kilo_ticks2) < timer) { //if within dessimnation time
-       		broadcast_msg = true;
-
-        }else{
-           kilo_ticks2 = kilo_ticks;
-           state = 2;//got to voting state
-       }
-              random_walk();
+       
        
    }
     
@@ -351,7 +495,7 @@ void loop() {
 ////////////////////////////////////////
 // DEBUGGING INFORMATION
 //
-// Save the value of 'own_gradient' into the debugging information
+// Save the value of 'currentopinion' into the debugging information
 // struct.
 // This will make it available into the loop functions.
 debug_info_set(currentopinion, currentopinion);
@@ -372,7 +516,7 @@ void message_rx(message_t *msg, distance_measurement_t *distance_measurement)
     distance = estimate_distance(distance_measurement);
     received = *msg;
     received_option = msg->data[1];
-     received_uid = msg->data[2];
+    received_uid = msg->data[2];
 
 }
 
@@ -380,7 +524,7 @@ void message_tx_success()
 {
  broadcast_msg = false;
     if (currentopinion == 1){
-            set_color(RGB(1, 0, 0));
+            set_color(RGB(2, 0, 0));
             delay(10);
             set_color(RGB(0, 0, 0));
         } else if (currentopinion == 2){
