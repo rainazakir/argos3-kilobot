@@ -1,1 +1,0 @@
-/usr/bin/cc -Wall -Os -DNDEBUG -rdynamic CMakeFiles/testred.dir/test_red.c.o -o testred   -L/home/rzakir/Programs/argos3/install/lib/argos3  -Wl,-rpath,/home/rzakir/Programs/argos3/install/lib/argos3 ../../plugins/robots/kilobot/libargos3plugin_simulator_kilolib.a -lm -lrt 

@@ -1,1 +1,0 @@
-/usr/bin/cc -Wall -Os -DNDEBUG -rdynamic CMakeFiles/testblue.dir/test_blue.c.o -o testblue   -L/home/rzakir/Programs/argos3/install/lib/argos3  -Wl,-rpath,/home/rzakir/Programs/argos3/install/lib/argos3 ../../plugins/robots/kilobot/libargos3plugin_simulator_kilolib.a -lm -lrt 

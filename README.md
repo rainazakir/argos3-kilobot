@@ -1,1 +1,1 @@
-# argos3-kilobot
+# ARGOS3 Kilogrid Experiment
