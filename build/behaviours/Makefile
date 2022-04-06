@@ -57,10 +57,10 @@ RM = /usr/local/Cellar/cmake/3.22.1/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/ARGoS_simulation
+CMAKE_SOURCE_DIR = /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/ARGoS_simulation
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build
+CMAKE_BINARY_DIR = /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -68,7 +68,7 @@ CMAKE_BINARY_DIR = /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-ma
 # Special rule for the target package
 package: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool..."
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && /usr/local/Cellar/cmake/3.22.1/bin/cpack --config ./CPackConfig.cmake
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && /usr/local/Cellar/cmake/3.22.1/bin/cpack --config ./CPackConfig.cmake
 .PHONY : package
 
 # Special rule for the target package
@@ -78,7 +78,7 @@ package/fast: package
 # Special rule for the target package_source
 package_source:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool for source..."
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && /usr/local/Cellar/cmake/3.22.1/bin/cpack --config ./CPackSourceConfig.cmake /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build/CPackSourceConfig.cmake
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && /usr/local/Cellar/cmake/3.22.1/bin/cpack --config ./CPackSourceConfig.cmake /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build/CPackSourceConfig.cmake
 .PHONY : package_source
 
 # Special rule for the target package_source
@@ -107,14 +107,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(CMAKE_COMMAND) -E cmake_progress_start /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build/CMakeFiles /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build/behaviours//CMakeFiles/progress.marks
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build/CMakeFiles 0
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(CMAKE_COMMAND) -E cmake_progress_start /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build/CMakeFiles /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build/behaviours//CMakeFiles/progress.marks
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/clean
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/clean
 .PHONY : clean
 
 # The main clean target
@@ -123,36 +123,36 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/preinstall
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/preinstall
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
-behaviours/CMakeFiles/agent_stubred.dir/rule:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/CMakeFiles/agent_stubred.dir/rule
-.PHONY : behaviours/CMakeFiles/agent_stubred.dir/rule
+behaviours/CMakeFiles/agent_stubmain.dir/rule:
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/CMakeFiles/agent_stubmain.dir/rule
+.PHONY : behaviours/CMakeFiles/agent_stubmain.dir/rule
 
 # Convenience name for target.
-agent_stubred: behaviours/CMakeFiles/agent_stubred.dir/rule
-.PHONY : agent_stubred
+agent_stubmain: behaviours/CMakeFiles/agent_stubmain.dir/rule
+.PHONY : agent_stubmain
 
 # fast build rule for target.
-agent_stubred/fast:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubred.dir/build.make behaviours/CMakeFiles/agent_stubred.dir/build
-.PHONY : agent_stubred/fast
+agent_stubmain/fast:
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubmain.dir/build.make behaviours/CMakeFiles/agent_stubmain.dir/build
+.PHONY : agent_stubmain/fast
 
 # Convenience name for target.
 behaviours/CMakeFiles/agent_stubblue.dir/rule:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/CMakeFiles/agent_stubblue.dir/rule
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/CMakeFiles/agent_stubblue.dir/rule
 .PHONY : behaviours/CMakeFiles/agent_stubblue.dir/rule
 
 # Convenience name for target.
@@ -161,26 +161,26 @@ agent_stubblue: behaviours/CMakeFiles/agent_stubblue.dir/rule
 
 # fast build rule for target.
 agent_stubblue/fast:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue.dir/build.make behaviours/CMakeFiles/agent_stubblue.dir/build
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue.dir/build.make behaviours/CMakeFiles/agent_stubblue.dir/build
 .PHONY : agent_stubblue/fast
 
 # Convenience name for target.
-behaviours/CMakeFiles/agent_stubred_autogen.dir/rule:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/CMakeFiles/agent_stubred_autogen.dir/rule
-.PHONY : behaviours/CMakeFiles/agent_stubred_autogen.dir/rule
+behaviours/CMakeFiles/agent_stubmain_autogen.dir/rule:
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/CMakeFiles/agent_stubmain_autogen.dir/rule
+.PHONY : behaviours/CMakeFiles/agent_stubmain_autogen.dir/rule
 
 # Convenience name for target.
-agent_stubred_autogen: behaviours/CMakeFiles/agent_stubred_autogen.dir/rule
-.PHONY : agent_stubred_autogen
+agent_stubmain_autogen: behaviours/CMakeFiles/agent_stubmain_autogen.dir/rule
+.PHONY : agent_stubmain_autogen
 
 # fast build rule for target.
-agent_stubred_autogen/fast:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubred_autogen.dir/build.make behaviours/CMakeFiles/agent_stubred_autogen.dir/build
-.PHONY : agent_stubred_autogen/fast
+agent_stubmain_autogen/fast:
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubmain_autogen.dir/build.make behaviours/CMakeFiles/agent_stubmain_autogen.dir/build
+.PHONY : agent_stubmain_autogen/fast
 
 # Convenience name for target.
 behaviours/CMakeFiles/agent_stubblue_autogen.dir/rule:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/CMakeFiles/agent_stubblue_autogen.dir/rule
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviours/CMakeFiles/agent_stubblue_autogen.dir/rule
 .PHONY : behaviours/CMakeFiles/agent_stubblue_autogen.dir/rule
 
 # Convenience name for target.
@@ -189,7 +189,7 @@ agent_stubblue_autogen: behaviours/CMakeFiles/agent_stubblue_autogen.dir/rule
 
 # fast build rule for target.
 agent_stubblue_autogen/fast:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue_autogen.dir/build.make behaviours/CMakeFiles/agent_stubblue_autogen.dir/build
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue_autogen.dir/build.make behaviours/CMakeFiles/agent_stubblue_autogen.dir/build
 .PHONY : agent_stubblue_autogen/fast
 
 agent_blue.o: agent_blue.c.o
@@ -197,7 +197,7 @@ agent_blue.o: agent_blue.c.o
 
 # target to build an object file
 agent_blue.c.o:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue.dir/build.make behaviours/CMakeFiles/agent_stubblue.dir/agent_blue.c.o
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue.dir/build.make behaviours/CMakeFiles/agent_stubblue.dir/agent_blue.c.o
 .PHONY : agent_blue.c.o
 
 agent_blue.i: agent_blue.c.i
@@ -205,7 +205,7 @@ agent_blue.i: agent_blue.c.i
 
 # target to preprocess a source file
 agent_blue.c.i:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue.dir/build.make behaviours/CMakeFiles/agent_stubblue.dir/agent_blue.c.i
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue.dir/build.make behaviours/CMakeFiles/agent_stubblue.dir/agent_blue.c.i
 .PHONY : agent_blue.c.i
 
 agent_blue.s: agent_blue.c.s
@@ -213,39 +213,39 @@ agent_blue.s: agent_blue.c.s
 
 # target to generate assembly for a file
 agent_blue.c.s:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue.dir/build.make behaviours/CMakeFiles/agent_stubblue.dir/agent_blue.c.s
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue.dir/build.make behaviours/CMakeFiles/agent_stubblue.dir/agent_blue.c.s
 .PHONY : agent_blue.c.s
 
-agent_red.o: agent_red.c.o
-.PHONY : agent_red.o
+agent_main.o: agent_main.c.o
+.PHONY : agent_main.o
 
 # target to build an object file
-agent_red.c.o:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubred.dir/build.make behaviours/CMakeFiles/agent_stubred.dir/agent_red.c.o
-.PHONY : agent_red.c.o
+agent_main.c.o:
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubmain.dir/build.make behaviours/CMakeFiles/agent_stubmain.dir/agent_main.c.o
+.PHONY : agent_main.c.o
 
-agent_red.i: agent_red.c.i
-.PHONY : agent_red.i
+agent_main.i: agent_main.c.i
+.PHONY : agent_main.i
 
 # target to preprocess a source file
-agent_red.c.i:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubred.dir/build.make behaviours/CMakeFiles/agent_stubred.dir/agent_red.c.i
-.PHONY : agent_red.c.i
+agent_main.c.i:
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubmain.dir/build.make behaviours/CMakeFiles/agent_stubmain.dir/agent_main.c.i
+.PHONY : agent_main.c.i
 
-agent_red.s: agent_red.c.s
-.PHONY : agent_red.s
+agent_main.s: agent_main.c.s
+.PHONY : agent_main.s
 
 # target to generate assembly for a file
-agent_red.c.s:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubred.dir/build.make behaviours/CMakeFiles/agent_stubred.dir/agent_red.c.s
-.PHONY : agent_red.c.s
+agent_main.c.s:
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubmain.dir/build.make behaviours/CMakeFiles/agent_stubmain.dir/agent_main.c.s
+.PHONY : agent_main.c.s
 
 agent_stubblue_autogen/mocs_compilation.o: agent_stubblue_autogen/mocs_compilation.cpp.o
 .PHONY : agent_stubblue_autogen/mocs_compilation.o
 
 # target to build an object file
 agent_stubblue_autogen/mocs_compilation.cpp.o:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue.dir/build.make behaviours/CMakeFiles/agent_stubblue.dir/agent_stubblue_autogen/mocs_compilation.cpp.o
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue.dir/build.make behaviours/CMakeFiles/agent_stubblue.dir/agent_stubblue_autogen/mocs_compilation.cpp.o
 .PHONY : agent_stubblue_autogen/mocs_compilation.cpp.o
 
 agent_stubblue_autogen/mocs_compilation.i: agent_stubblue_autogen/mocs_compilation.cpp.i
@@ -253,7 +253,7 @@ agent_stubblue_autogen/mocs_compilation.i: agent_stubblue_autogen/mocs_compilati
 
 # target to preprocess a source file
 agent_stubblue_autogen/mocs_compilation.cpp.i:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue.dir/build.make behaviours/CMakeFiles/agent_stubblue.dir/agent_stubblue_autogen/mocs_compilation.cpp.i
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue.dir/build.make behaviours/CMakeFiles/agent_stubblue.dir/agent_stubblue_autogen/mocs_compilation.cpp.i
 .PHONY : agent_stubblue_autogen/mocs_compilation.cpp.i
 
 agent_stubblue_autogen/mocs_compilation.s: agent_stubblue_autogen/mocs_compilation.cpp.s
@@ -261,32 +261,32 @@ agent_stubblue_autogen/mocs_compilation.s: agent_stubblue_autogen/mocs_compilati
 
 # target to generate assembly for a file
 agent_stubblue_autogen/mocs_compilation.cpp.s:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue.dir/build.make behaviours/CMakeFiles/agent_stubblue.dir/agent_stubblue_autogen/mocs_compilation.cpp.s
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubblue.dir/build.make behaviours/CMakeFiles/agent_stubblue.dir/agent_stubblue_autogen/mocs_compilation.cpp.s
 .PHONY : agent_stubblue_autogen/mocs_compilation.cpp.s
 
-agent_stubred_autogen/mocs_compilation.o: agent_stubred_autogen/mocs_compilation.cpp.o
-.PHONY : agent_stubred_autogen/mocs_compilation.o
+agent_stubmain_autogen/mocs_compilation.o: agent_stubmain_autogen/mocs_compilation.cpp.o
+.PHONY : agent_stubmain_autogen/mocs_compilation.o
 
 # target to build an object file
-agent_stubred_autogen/mocs_compilation.cpp.o:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubred.dir/build.make behaviours/CMakeFiles/agent_stubred.dir/agent_stubred_autogen/mocs_compilation.cpp.o
-.PHONY : agent_stubred_autogen/mocs_compilation.cpp.o
+agent_stubmain_autogen/mocs_compilation.cpp.o:
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubmain.dir/build.make behaviours/CMakeFiles/agent_stubmain.dir/agent_stubmain_autogen/mocs_compilation.cpp.o
+.PHONY : agent_stubmain_autogen/mocs_compilation.cpp.o
 
-agent_stubred_autogen/mocs_compilation.i: agent_stubred_autogen/mocs_compilation.cpp.i
-.PHONY : agent_stubred_autogen/mocs_compilation.i
+agent_stubmain_autogen/mocs_compilation.i: agent_stubmain_autogen/mocs_compilation.cpp.i
+.PHONY : agent_stubmain_autogen/mocs_compilation.i
 
 # target to preprocess a source file
-agent_stubred_autogen/mocs_compilation.cpp.i:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubred.dir/build.make behaviours/CMakeFiles/agent_stubred.dir/agent_stubred_autogen/mocs_compilation.cpp.i
-.PHONY : agent_stubred_autogen/mocs_compilation.cpp.i
+agent_stubmain_autogen/mocs_compilation.cpp.i:
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubmain.dir/build.make behaviours/CMakeFiles/agent_stubmain.dir/agent_stubmain_autogen/mocs_compilation.cpp.i
+.PHONY : agent_stubmain_autogen/mocs_compilation.cpp.i
 
-agent_stubred_autogen/mocs_compilation.s: agent_stubred_autogen/mocs_compilation.cpp.s
-.PHONY : agent_stubred_autogen/mocs_compilation.s
+agent_stubmain_autogen/mocs_compilation.s: agent_stubmain_autogen/mocs_compilation.cpp.s
+.PHONY : agent_stubmain_autogen/mocs_compilation.s
 
 # target to generate assembly for a file
-agent_stubred_autogen/mocs_compilation.cpp.s:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubred.dir/build.make behaviours/CMakeFiles/agent_stubred.dir/agent_stubred_autogen/mocs_compilation.cpp.s
-.PHONY : agent_stubred_autogen/mocs_compilation.cpp.s
+agent_stubmain_autogen/mocs_compilation.cpp.s:
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubmain.dir/build.make behaviours/CMakeFiles/agent_stubmain.dir/agent_stubmain_autogen/mocs_compilation.cpp.s
+.PHONY : agent_stubmain_autogen/mocs_compilation.cpp.s
 
 # Help Target
 help:
@@ -299,21 +299,21 @@ help:
 	@echo "... package_source"
 	@echo "... rebuild_cache"
 	@echo "... agent_stubblue_autogen"
-	@echo "... agent_stubred_autogen"
+	@echo "... agent_stubmain_autogen"
 	@echo "... agent_stubblue"
-	@echo "... agent_stubred"
+	@echo "... agent_stubmain"
 	@echo "... agent_blue.o"
 	@echo "... agent_blue.i"
 	@echo "... agent_blue.s"
-	@echo "... agent_red.o"
-	@echo "... agent_red.i"
-	@echo "... agent_red.s"
+	@echo "... agent_main.o"
+	@echo "... agent_main.i"
+	@echo "... agent_main.s"
 	@echo "... agent_stubblue_autogen/mocs_compilation.o"
 	@echo "... agent_stubblue_autogen/mocs_compilation.i"
 	@echo "... agent_stubblue_autogen/mocs_compilation.s"
-	@echo "... agent_stubred_autogen/mocs_compilation.o"
-	@echo "... agent_stubred_autogen/mocs_compilation.i"
-	@echo "... agent_stubred_autogen/mocs_compilation.s"
+	@echo "... agent_stubmain_autogen/mocs_compilation.o"
+	@echo "... agent_stubmain_autogen/mocs_compilation.i"
+	@echo "... agent_stubmain_autogen/mocs_compilation.s"
 .PHONY : help
 
 
@@ -325,6 +325,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

@@ -1,4 +1,4 @@
-# Install script for directory: /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/ARGoS_simulation
+# Install script for directory: /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/ARGoS_simulation
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,8 +39,8 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build/behaviours/cmake_install.cmake")
-  include("/Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build/loop_functions/cmake_install.cmake")
+  include("/Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build/behaviours/cmake_install.cmake")
+  include("/Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build/loop_functions/cmake_install.cmake")
 
 endif()
 
@@ -52,5 +52,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

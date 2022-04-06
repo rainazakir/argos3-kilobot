@@ -1,4 +1,4 @@
-# Install script for directory: /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/ARGoS_simulation/behaviours
+# Install script for directory: /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/ARGoS_simulation/behaviours
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

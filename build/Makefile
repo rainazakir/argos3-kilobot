@@ -57,10 +57,10 @@ RM = /usr/local/Cellar/cmake/3.22.1/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/ARGoS_simulation
+CMAKE_SOURCE_DIR = /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/ARGoS_simulation
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build
+CMAKE_BINARY_DIR = /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -78,7 +78,7 @@ package/fast: package
 # Special rule for the target package_source
 package_source:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool for source..."
-	/usr/local/Cellar/cmake/3.22.1/bin/cpack --config ./CPackSourceConfig.cmake /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build/CPackSourceConfig.cmake
+	/usr/local/Cellar/cmake/3.22.1/bin/cpack --config ./CPackSourceConfig.cmake /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build/CPackSourceConfig.cmake
 .PHONY : package_source
 
 # Special rule for the target package_source
@@ -107,9 +107,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build/CMakeFiles /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build/CMakeFiles /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -137,17 +137,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named agent_stubred
+# Target rules for targets named agent_stubmain
 
 # Build rule for target.
-agent_stubred: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 agent_stubred
-.PHONY : agent_stubred
+agent_stubmain: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 agent_stubmain
+.PHONY : agent_stubmain
 
 # fast build rule for target.
-agent_stubred/fast:
-	$(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubred.dir/build.make behaviours/CMakeFiles/agent_stubred.dir/build
-.PHONY : agent_stubred/fast
+agent_stubmain/fast:
+	$(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubmain.dir/build.make behaviours/CMakeFiles/agent_stubmain.dir/build
+.PHONY : agent_stubmain/fast
 
 #=============================================================================
 # Target rules for targets named agent_stubblue
@@ -163,17 +163,17 @@ agent_stubblue/fast:
 .PHONY : agent_stubblue/fast
 
 #=============================================================================
-# Target rules for targets named agent_stubred_autogen
+# Target rules for targets named agent_stubmain_autogen
 
 # Build rule for target.
-agent_stubred_autogen: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 agent_stubred_autogen
-.PHONY : agent_stubred_autogen
+agent_stubmain_autogen: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 agent_stubmain_autogen
+.PHONY : agent_stubmain_autogen
 
 # fast build rule for target.
-agent_stubred_autogen/fast:
-	$(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubred_autogen.dir/build.make behaviours/CMakeFiles/agent_stubred_autogen.dir/build
-.PHONY : agent_stubred_autogen/fast
+agent_stubmain_autogen/fast:
+	$(MAKE) $(MAKESILENT) -f behaviours/CMakeFiles/agent_stubmain_autogen.dir/build.make behaviours/CMakeFiles/agent_stubmain_autogen.dir/build
+.PHONY : agent_stubmain_autogen/fast
 
 #=============================================================================
 # Target rules for targets named agent_stubblue_autogen
@@ -225,10 +225,10 @@ help:
 	@echo "... package_source"
 	@echo "... rebuild_cache"
 	@echo "... agent_stubblue_autogen"
-	@echo "... agent_stubred_autogen"
+	@echo "... agent_stubmain_autogen"
 	@echo "... kilogrid_stub_autogen"
 	@echo "... agent_stubblue"
-	@echo "... agent_stubred"
+	@echo "... agent_stubmain"
 	@echo "... kilogrid_stub"
 .PHONY : help
 

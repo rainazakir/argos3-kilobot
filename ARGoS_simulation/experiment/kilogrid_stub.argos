@@ -5,10 +5,10 @@
 <!-- * General configuration * -->
 <!-- ************************* -->
 <framework>
-<system threads="0" />
+<system threads="1" />
 <experiment length="0"
     ticks_per_second="30"
-    random_seed="96483534" />
+    random_seed="0" />
 </framework>
 
 <!-- *************** -->
@@ -30,7 +30,7 @@
         <kilobot_communication implementation="default" medium="kilocomm" show_rays="true" />
     </sensors>
 
-    <params behavior="/Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build/behaviours/agent_stubred" />
+    <params behavior="/Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build/behaviours/agent_stubmain" />
 
     </kilobot_controller>
 
@@ -48,7 +48,7 @@
         <kilobot_communication implementation="default" medium="kilocomm" show_rays="false" />
     </sensors>
 
-    <params behavior="/Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build/behaviours/agent_stubblue" />
+    <params behavior="/Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build/behaviours/agent_stubblue" />
 
     </kilobot_controller>
 
@@ -58,10 +58,10 @@
 <!-- * Loop functions * -->
 <!-- ****************** -->
 <loop_functions
-    library="/Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/build/loop_functions/libkilogrid_stub"
+    library="/Users/raina/Documents/argosim/kilogridselfsourcednewpoll/build/loop_functions/libkilogrid_stub"
     label="kilogrid_loop_functions" >
 
-    <variables config_file="/Users/rzakir/Documents/argosim/adaptive_symmetry_breaking-main/ARGoS_simulation/loop_functions/ASB_experiment_1.kconf" datafilename="data_file"/>
+    <variables config_file="/Users/raina/Documents/argosim/kilogridselfsourcednewpoll/ARGoS_simulation/loop_functions/ASB_experiment_50_50.kconf" datafilename="data_file"/>
 
 </loop_functions>
 
@@ -90,7 +90,7 @@
     <distribute>
         <position method="uniform" min="0.12,0.12,0" max="0.88,1.88,0" />
         <orientation method="uniform" min="0,0,0" max="360,0,0" />
-        <entity quantity="50" max_trials="10">
+        <entity quantity="100" max_trials="10">
             <kilobot id="kb" communication_range="0.1">
                 <controller config="red"/>
                 <dynamics2d friction="0.7" />

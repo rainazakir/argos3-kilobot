@@ -136,7 +136,7 @@ void CKilogrid::PostStep(){
            op2 +=1;
        }
                  
-       if(debug_info_kilobots[i]->currentopinion == 3){
+       if(debug_info_kilobots[i]->currentopinion == 99){
            unc +=1;
        }
        
@@ -220,9 +220,9 @@ CColor CKilogrid::GetFloorColor(const CVector2 &vec_position_on_plane) {
     }else if(id == 5){
         cColor=CColor::BLACK;
     }
-    else if(id == 6){
+    else if(id == 6){   //for cells near wall that are red- op A
         cColor=CColor::RED;
-    }else if(id == 9){
+    }else if(id == 9){ //for cells near wall that are red- op B
         cColor=CColor::BLUE;
     }
 
