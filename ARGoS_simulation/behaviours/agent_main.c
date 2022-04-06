@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------------------------*/
-/* This file gives a template of what functions need to be implemented for Kilobot in order to   */
-/* work on the Kilogrid.                                                                         */
+/* This file provides functions need to be implemented for Kilobot in order to work on the       */
+/*  Kilogrid to test symmetry breaking two options with self-sourced noise and social interaction*/
 /*-----------------------------------------------------------------------------------------------*/
 
 // macro if we are in sim or reality -> command out if on real robot
@@ -48,15 +48,23 @@
 #define TO_KILOGRID_MSG 62
 #define SWARMSIZE 100
 
-////////Change these when running experiment ///////////////
+/*-----------------------------------------------------------------------------------------------*/
+/* Change these when running experiment                                                          */
+/*-----------------------------------------------------------------------------------------------*/
 #define MODEL 0   // 0 --> Voter Model      1 --> CrossInhibition
-
-double noise = 0.1; // SET THIS TO -1 FOR NO NOISE
-
-/////////////////////////////////////////////////////////////
+double noise = 0.1; // SET THIS TO -1 FOR NO NOISE, 0.1--> 0.05, 0.5-->0.25
+/*-----------------------------------------------------------------------------------------------*/
 
 //opinion = A -->1   //opinion = B --> 2  //uncommited = C --> UNCOMITTED
 int currentopinion; //1
+
+double timer; // to hold time to be in each state
+double qnorm = 0.0003; //***--> time to be in exploration state--> fixed---increased to about 6112ticks/32ms
+double quncommitted = 0.005; // time to stay in dissemination for uncommitted agents
+
+int foundmodules[18][38] = {0}; //to keep track of tiles visited in one exploration cycle
+float qratio; //to store quality based ont the tiles explored
+int state = 0; //0--> Exploration , 1-->Dissemination , 2-->Voting // start in exploration state
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Enum section - here we can define useful enums                                                */
@@ -68,50 +76,29 @@ typedef enum{
 
 /* Enum for different motion types */
 typedef enum {
-	STOP = 0,
-	FORWARD,
-	TURN_LEFT,
-	TURN_RIGHT,
+    STOP = 0,
+    FORWARD,
+    TURN_LEFT,
+    TURN_RIGHT,
 } motion_t;
 
+
+/*-----------------------------------------------------------------------------------------------*/
+/* Motion related Variables                                                                      */
+/*-----------------------------------------------------------------------------------------------*/
 motion_t current_motion_type = STOP;
 const bool CALIBRATED = true;  // flag if robot is calibrated??
-//bool broadcast_msg = false;
-int received_option; //to save an opinion received from another bot
-int received_option_kilogrid; // to save option received from kilogrid
-int received_uid; //previously used to save neighbours kilouid temporarily
 unsigned int turning_ticks = 0;
-const uint8_t max_turning_ticks = 150; //*** constant to set maximum rotation to turn during random walk 
-const uint32_t max_straight_ticks = 300; //*** set the time to walk straight beofre randomnly turning
+const uint8_t max_turning_ticks = 150; //*** constant to set maximum rotation to turn during random walk
+const uint32_t max_straight_ticks = 300; //*** set the time to walk straight before randomly turning
 //const uint32_t broadcast_ticks = 32;
 uint32_t last_motion_ticks = 0;
 
 uint8_t kilogrid_commitment = 0;  // This is the initial commitment attained from kilogrid
 //float my_commitment_quality = 0.0;
-
-//uint8_t communication_range = 0;  // communication range in cells
 int last_changed = 0;
 
-
-// Flag to keep track of new messages.
-message_t message;
-int new_message = 0;
-message_t received;
-int distance;
-int last_changed;
-// Flag to keep track of message transmission.
-int message_sent = 0;
-
-
-double timer; // to hold time to be in each state
-double qnorm = 0.0003; //***--> time to be in exploration state--> fixed---increased to about 6112 ticks/32
-double quncommitted = 0.005; // time to stay in dissem for uncommitted agents
-
-int foundmodules[18][38] = {0}; //to keep track of tiles visited
-float qratio; //to store quality based ont the tiles explored
-int state = 0; //0--> Exploration , 1-->Dissemination , 2-->Voting // start in exploration state
-
-
+//uint8_t communication_range = 0;  // communication range in cells
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Communication variables - used for communication and stuff                                    */
@@ -142,12 +129,22 @@ uint32_t msg_counter = 0;
 IR_message_t* message;
 #endif
 
+// Flag to keep track of new messages.
+message_t message;
+int new_message = 0;
+message_t received;
+int distance;
+int last_changed;
+// Flag to keep track of message transmission.
+int message_sent = 0;
 
+int received_option; //to save an opinion received from another bot
+int received_option_kilogrid; // to save option received from kilogrid
+int received_uid; //previously used to save neighbours kilouid temporarily
 /*-----------------------------------------------------------------------------------------------*/
 /* Arena variables                                                                               */
 /*-----------------------------------------------------------------------------------------------*/
-uint8_t NUMBER_OF_OPTIONS = 0;
-uint8_t current_ground = 0;
+
 bool hit_wall = false;  // set to true if wall detected
 //to keep track of tiles and quality
 int total_tiles_found;
@@ -171,64 +168,64 @@ int option_received_from_neighbour;
 /* Setting the Motion of the Bot                                                                 */
 /*-----------------------------------------------------------------------------------------------*/
 void set_motion( motion_t new_motion_type ) {
-	if( current_motion_type != new_motion_type ){
-	
-		switch( new_motion_type ) {
-		case FORWARD:
-			spinup_motors();
-			set_motors(kilo_straight_left,kilo_straight_right);
-			break;
-		case TURN_LEFT:
-			spinup_motors();
-			set_motors(kilo_turn_left,0);
-			break;
-		case TURN_RIGHT:
-			spinup_motors();
-			set_motors(0,kilo_turn_right);
-			break;
-		case STOP:
-            set_motors(0,0);
-            break;
-		}
-		current_motion_type = new_motion_type;
-	}
+    if( current_motion_type != new_motion_type ){
+
+        switch( new_motion_type ) {
+            case FORWARD:
+                spinup_motors();
+                set_motors(kilo_straight_left,kilo_straight_right);
+                break;
+            case TURN_LEFT:
+                spinup_motors();
+                set_motors(kilo_turn_left,0);
+                break;
+            case TURN_RIGHT:
+                spinup_motors();
+                set_motors(0,kilo_turn_right);
+                break;
+            case STOP:
+                set_motors(0,0);
+                break;
+        }
+        current_motion_type = new_motion_type;
+    }
 }
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Random Walk                                                                                   */
 /*-----------------------------------------------------------------------------------------------*/
 void random_walk(){
-   switch( current_motion_type ) {
-   case TURN_LEFT:
-   case TURN_RIGHT:
-      if(  kilo_ticks > last_motion_ticks + turning_ticks ) {
-         /* start moving forward */
-         last_motion_ticks = kilo_ticks;
-         set_motion(FORWARD);
-      }
-      break;
-   case FORWARD:
-   	   //spinup_motors();
-	   //set_motors(20,20);
-      if( kilo_ticks > last_motion_ticks + max_straight_ticks ) {
-         /* perform a random turn */
-         last_motion_ticks = kilo_ticks;
-         if( rand()%2 ) {
-            set_motion(TURN_LEFT);
-            current_motion_type = TURN_LEFT;
-         }
-         else {
-            set_motion(TURN_RIGHT);
-            current_motion_type = TURN_RIGHT;
-         }
-         turning_ticks = rand()%max_turning_ticks + 1;
-      }
-      break;
-    case STOP:
-         set_motion(STOP);
-    default:
-        set_motion(FORWARD);
-   }
+    switch( current_motion_type ) {
+        case TURN_LEFT:
+        case TURN_RIGHT:
+            if(  kilo_ticks > last_motion_ticks + turning_ticks ) {
+                /* start moving forward */
+                last_motion_ticks = kilo_ticks;
+                set_motion(FORWARD);
+            }
+            break;
+        case FORWARD:
+            //spinup_motors();
+            //set_motors(20,20);
+            if( kilo_ticks > last_motion_ticks + max_straight_ticks ) {
+                /* perform a random turn */
+                last_motion_ticks = kilo_ticks;
+                if( rand()%2 ) {
+                    set_motion(TURN_LEFT);
+                    current_motion_type = TURN_LEFT;
+                }
+                else {
+                    set_motion(TURN_RIGHT);
+                    current_motion_type = TURN_RIGHT;
+                }
+                turning_ticks = rand()%max_turning_ticks + 1;
+            }
+            break;
+        case STOP:
+            set_motion(STOP);
+        default:
+            set_motion(FORWARD);
+    }
 }
 /*-----------------------------------------------------------------------------------------------*/
 /* Function to check if the robot is against the wall                                             */
@@ -236,32 +233,32 @@ void random_walk(){
 void check_if_against_a_wall() {
     // when the hitwall flag is true -- (either at the border tiles or white buffer)
     if(hit_wall){
-         if( rand()%2 ) {
+        if( rand()%2 ) {
             set_motion(TURN_LEFT);
             current_motion_type = TURN_LEFT;
-             set_color(RGB(2, 0, 2));
+            set_color(RGB(2, 0, 2));
 
-             delay(5100);
-             set_color(RGB(0, 0, 0));
+            delay(5100);
+            set_color(RGB(0, 0, 0));
 
             set_motion(FORWARD);
-             delay(9000);
-             
-             random_walk();
-         }else {
+            delay(9000);
+
+            random_walk();
+        }else {
             set_motion(TURN_RIGHT);
             current_motion_type = TURN_RIGHT;
-             
-             set_color(RGB(2, 0, 2));
-             delay(5100);
-             set_color(RGB(0, 0, 0));
-            set_motion(FORWARD);
-             delay(9000);
-             random_walk();
-         }
-                 turning_ticks = rand()%max_turning_ticks + 1;
 
-    } 
+            set_color(RGB(2, 0, 2));
+            delay(5100);
+            set_color(RGB(0, 0, 0));
+            set_motion(FORWARD);
+            delay(9000);
+            random_walk();
+        }
+        turning_ticks = rand()%max_turning_ticks + 1;
+
+    }
 }
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -286,13 +283,13 @@ double r2()
 /*               each opinion if majority model is used                                          */
 /*-----------------------------------------------------------------------------------------------*/
 /*
-int countOccurrences(int arr[], int n, int x) 
-{ 
-    int res = 0; 
-    for (int i=0; i<n; i++) 
-        if (x == arr[i]) 
-          res++; 
-    return res; 
+int countOccurrences(int arr[], int n, int x)
+{
+    int res = 0;
+    for (int i=0; i<n; i++)
+        if (x == arr[i])
+          res++;
+    return res;
 }
  */
 
@@ -318,23 +315,23 @@ int find_index(int a[], int num_elements, int value)
 */
 
 /*-----------------------------------------------------------------------------------------------*/
-/* This function is used to convert the tiles perceived in an exp-dissem cycle to quality        */
-/* of  its opinion. If q>=0.5, all qr is taken as 1. The function is inverse lambda  exp..       */
+/* This function is used to convert the tiles perceived in an expl-dissem cycle to quality       */
+/* of  its opinion. If q>=0.5, all qr is taken as 1. The function is inverse lambda expon.       */
 /*-----------------------------------------------------------------------------------------------*/
 
 void findqualityratio(){
 
-             qratio = ((float)tiles_of_my_option/total_tiles_found);  //find % of tiles of opinion bot supports
+    qratio = ((float)tiles_of_my_option/total_tiles_found);  //find % of tiles of opinion bot supports
 
-             if(qratio >= 0.5){ //if % more than or equal to 0.5
-                 qratio = 1/(((float)1/1)*1300); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
+    if(qratio >= 0.5){ //if % more than or equal to 0.5
+        qratio = 1/(((float)1/1)*1300); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
 
-             }else{ //otherwise calculate dissem time based on % found 0-0.4999
-                    qratio = 1/(((float)tiles_of_my_option/total_tiles_found)*1300); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
+    }else{ //otherwise calculate dissem time based on % found 0-0.4999
+        qratio = 1/(((float)tiles_of_my_option/total_tiles_found)*1300); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
 
-             }
+    }
 
-               // qratio = 1/(((float)tiles_of_my_option/total_tiles_found)*1000); //like valentini model inverse lambda
+    // qratio = 1/(((float)tiles_of_my_option/total_tiles_found)*1000); //like valentini model inverse lambda
 
     //  printf("%d tile my op %d total tiles and qr %f \n", tiles_of_my_option,total_tiles_found, qratio);
 
@@ -345,28 +342,28 @@ void findqualityratio(){
 /*                      findqualityratio() function.                                            */
 /*-----------------------------------------------------------------------------------------------*/
 void calculatedissemtime(){
-             
-     if (isnan(qratio) || isinf(qratio)){  //if quality was found to be 0
-           if(MODEL == 1){ //if crossinhibition
 
-               if (currentopinion == UNCOMMITTED){ //if uncommitted
-                   printf("comes to time of uncommitted agent in noisy switch \n");
-                   timer =  ran_expo(quncommitted);
-               }else{
-                   timer = 0;
-                   //timer =  ran_expo(q0);
-               }
-           }else{
+    if (isnan(qratio) || isinf(qratio)){  //if quality was found to be 0
+        if(MODEL == 1){ //if cross-inhibition
+
+            if (currentopinion == UNCOMMITTED){ //if bot is uncommitted
+                printf("comes to time of uncommitted agent in noisy switch \n");
+                timer =  ran_expo(quncommitted); //set time to be in dissem state but will not talk
+            }else{
+                timer = 0;
+                //timer =  ran_expo(q0);
+            }
+        }else{ //if not uncommitted and tiles own opinion found to be = 0
             //printf("% f  goes directly to voting    \n", qratio);
-            timer = 0;
-           //timer = ran_expo(0.003);
-           }
+            timer = 0;  //no time as will go directly to poll/noisyswitch state
+            //timer = ran_expo(0.003);
+        }
 
 
-     }else{ //if quality was not 0
+    }else{ //if quality was not 0
 
-             //printf("% f  goes to random  \n", qratio);
-             timer = ran_expo(qratio); //get the time to disseminate based on quality
+        //printf("% f  goes to random  \n", qratio);
+        timer = ran_expo(qratio); //get the time to disseminate based on quality
         //}
     }
 }
@@ -376,58 +373,58 @@ void calculatedissemtime(){
 /*                                                                                               */
 /*-----------------------------------------------------------------------------------------------*/
 void gotoexploration(){
-    
-        random_walk(); //start with random walk
-    
-        //set led colours
-        if (currentopinion == 1){
-            set_color(RGB(1, 0, 0));
 
-        } else if (currentopinion == 2){
-            set_color(RGB(0, 1, 1));
+    random_walk(); //start with random walk
 
+    //set led colours
+    if (currentopinion == 1){
+        set_color(RGB(1, 0, 0));
+
+    } else if (currentopinion == 2){
+        set_color(RGB(0, 1, 1));
+
+    }else{
+        set_color(RGB(2, 2, 0)); //uncommitted
+
+    }
+
+
+    //if time for exploration not over yet, do nothing else move on to dissemination state
+    if ((kilo_ticks - last_changed) < timer) {//check if still within time for exploration state or not
+        check_if_against_a_wall(); //check if hitting the wall
+    } else{ //if not in exploration state
+
+        findqualityratio(); //find quality of own opinion based on tiles incurred in the exploration cycle
+
+
+        // printf("%d tiles of my option and %d total tiles and actual is %f   ",tiles_of_my_option,total_tiles_found,percentage);
+        // printf("%.5f no of percentage \n", (float)((1-((float)percentage))/100));
+
+
+        calculatedissemtime(); //calculate the time that the bot should be disseminating based on quality found
+
+        if(timer == 0){ //if 0 tiles found of same opinion
+            printf("timer is 00 here \n");
+            last_changed = kilo_ticks;
+            state = 2;//directly go to noisy switch or polling state
+            random_walk();
         }else{
-            set_color(RGB(2, 2, 0)); //uncommitted
+            last_changed = kilo_ticks;
+            state = 1;//go to Dissemination mode
+            // set_color(RGB(0, 0, 0));
 
         }
 
-        
-         //if time for exploration not over do nothing else move on to dissemination state
-         if ((kilo_ticks - last_changed) < timer) {//check if still within time for exploration state or not
-            check_if_against_a_wall(); //check if hitting the wall
-         } else{ //if not in exploration state
 
-            findqualityratio(); //find qr
-             
+        //reset the variable that are used to find the qr for next exploration-dissem cycle
+        memset(foundmodules, 0, sizeof(foundmodules[0][0]) * 18 * 38);
+        tiles_of_my_option = 0;
+        total_tiles_found = 0;
+        qratio = 0;
+        // set_color(RGB(0, 0, 0));
 
-           // printf("%d tiles of my option and %d total tiles and actual is %f   ",tiles_of_my_option,total_tiles_found,percentage);
-           // printf("%.5f no of percentage \n", (float)((1-((float)percentage))/100));
-             
-    
-            calculatedissemtime();         //calculate the time that the bot should be disseminating
-             
-           if(timer == 0){ //if 0 tiles found of same opinion
-                  printf("timer is 00 here \n");
-                  last_changed = kilo_ticks;
-                  state = 2;//directly go to noisy switch or polling state
-                  random_walk();
-           }else{
-               last_changed = kilo_ticks;
-               state = 1;//go to Dissemination mode
-              // set_color(RGB(0, 0, 0));
-               
-           }
+    }
 
-
-           //reset the variable that are used to find the qr for next exp-dissem cycle
-           memset(foundmodules, 0, sizeof(foundmodules[0][0]) * 18 * 38);
-           tiles_of_my_option = 0; 
-           total_tiles_found = 0;
-           qratio = 0;
-           // set_color(RGB(0, 0, 0));
-    
-     } 
-    
 }
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -436,103 +433,103 @@ void gotoexploration(){
 /*-----------------------------------------------------------------------------------------------*/
 
 void donoisyswitch(){
-         printf("opts for noisy switch noise fro kilgorid \n");
+    printf("opts for noisy switch noise fro kilgorid \n");
 
-         if (MODEL == 1){ //if cross inhibition and noise switching
+    if (MODEL == 1){ //if cross inhibition and noise switching
 
-            if(init_flag){  // initalization happened from Kilogrid
-                // run logic
-                // process received msgs
-                if (received_grid_msg_flag) { //if received message from kilogrid
-                    printf("receives message from grid \n");
+        if(init_flag){  // initalization happened from Kilogrid
+            // run logic
+            // process received msgs
+            if (received_grid_msg_flag) { //if received message from kilogrid
+                printf("receives message from grid \n");
 
-                    check_if_against_a_wall(); //are we getting a wall signal from Kilogrid
+                check_if_against_a_wall(); //are we getting a wall signal from Kilogrid
 
-                    if(kilogrid_commitment == 1 || kilogrid_commitment == 6){  //if it option A- red recived from Kilogrid
-                        printf("%d  changes commitment to 1 from kilogrid\n", kilogrid_commitment);
+                if(kilogrid_commitment == 1 || kilogrid_commitment == 6){  //if it option A- red recived from Kilogrid  (1 for a normal red tile and 6 for border red tile)
+                    printf("%d  changes commitment to 1 from kilogrid\n", kilogrid_commitment);
 
-                        currentopinion = 1; //change opinion to A- Red - 1
-                        set_color(RGB(1, 0, 0));
+                    currentopinion = 1; //change opinion to A- Red - 1
+                    set_color(RGB(1, 0, 0));
 
-                        
-                    } else if(kilogrid_commitment == 3 || kilogrid_commitment == 9){  //if its option b- Blue received from Kilogrid
-                        printf("%d  changes commitment to 2 from kilogrid\n", kilogrid_commitment);
 
-                        currentopinion = 2; //change option to B- Blue - 2
-                        set_color(RGB(0, 1, 1));
+                } else if(kilogrid_commitment == 3 || kilogrid_commitment == 9){  //if its option b- Blue received from Kilogrid (3 for a normal blue tile and 9 for border blue tile)
+                    printf("%d  changes commitment to 2 from kilogrid\n", kilogrid_commitment);
 
-                        
-                    }
-                    
+                    currentopinion = 2; //change option to B- Blue - 2
+                    set_color(RGB(0, 1, 1));
 
-                    received_grid_msg_flag = false;  //set Kilogrid messaged received to False to get next
-   
+
                 }
 
-                if (received_virtual_agent_msg_flag) { //this we are not using its when Kilobot does communciation
-                   // update_virtual_agent_msg();
-                    received_virtual_agent_msg_flag = false;
-                }
+
+                received_grid_msg_flag = false;  //set Kilogrid messaged received to False to get next
 
             }
 
-         }
-
-
-        if (MODEL == 0){ //if voter model and noise switching
-        //printf("comes to MODEL 0 loop in noisy swicth");
-           if(init_flag){  // initalization happened for Kilogrid
-
-                // run logic
-                // process received msgs
-                if (received_grid_msg_flag) { // if received message from Kilogrid
-              //  printf("comes to received_grid_msg_flag \n");
-
-                    if(kilogrid_commitment == 1 || kilogrid_commitment == 6){ //if option A received from Kilogrid
-                        printf("%d  changes commitment to 1 from kilogrid \n", kilogrid_commitment);
-
-                        currentopinion = 1; //change opinion to A - Red - 1
-                        set_color(RGB(1, 0, 0));
-
-                    } else if(kilogrid_commitment == 3 || kilogrid_commitment ==9){ //if option B-Blue received from Kilogrid
-                        printf("%d  changes commitment to 2 from kilogrid \n", kilogrid_commitment);
-
-                        currentopinion = 2; //change opinion to B - Blue - 2
-                        set_color(RGB(0, 1, 1));
-
-                    }
-
-                    received_grid_msg_flag = false; //set Kilogrid messaged received to False to get next
-   
-                }
-
-                if (received_virtual_agent_msg_flag) {
-                   // update_virtual_agent_msg();
-                    received_virtual_agent_msg_flag = false;
-                }
-
-                // TODO add logic here ...
-                // example robot sends empty message to the kilogrid
-
+            if (received_virtual_agent_msg_flag) { //this we are not using its when Kilobot does communciation
+                // update_virtual_agent_msg();
+                received_virtual_agent_msg_flag = false;
             }
 
         }
 
+    }
 
-        //set parameters for sending message to other bots
-        message.data[1] = currentopinion;
-        message.data[2] = kilo_uid;
-        message.crc = message_crc(&message);
-    
-        timer =  ran_expo(qnorm); //get time for exploration
-        state = 0; //go to exploration state
 
-        last_changed = kilo_ticks;
-        set_color(RGB(0, 0, 0));
-        
-           
-    
-    
+    if (MODEL == 0){ //if voter model and noise switching
+        //printf("comes to MODEL 0 loop in noisy swicth");
+        if(init_flag){  // initialization happened for Kilogrid
+
+            // run logic
+            // process received msgs
+            if (received_grid_msg_flag) { // if received message from Kilogrid
+                //  printf("comes to received_grid_msg_flag \n");
+
+                if(kilogrid_commitment == 1 || kilogrid_commitment == 6){ //if option A received from Kilogrid (1 for a normal red tile and 6 for border red tile)
+                    printf("%d  changes commitment to 1 from kilogrid \n", kilogrid_commitment);
+
+                    currentopinion = 1; //change opinion to A - Red - 1
+                    set_color(RGB(1, 0, 0));
+
+                } else if(kilogrid_commitment == 3 || kilogrid_commitment ==9){ //if option B-Blue received from Kilogrid (3 for a normal blue tile and 9 for border blue tile)
+                    printf("%d  changes commitment to 2 from kilogrid \n", kilogrid_commitment);
+
+                    currentopinion = 2; //change opinion to B - Blue - 2
+                    set_color(RGB(0, 1, 1));
+
+                }
+
+                received_grid_msg_flag = false; //set Kilogrid messaged received to False to get next
+
+            }
+
+            if (received_virtual_agent_msg_flag) {
+                // update_virtual_agent_msg();
+                received_virtual_agent_msg_flag = false;
+            }
+
+            // TODO add logic here ...
+            // example robot sends empty message to the kilogrid
+
+        }
+
+    }
+
+
+    //set parameters for sending message to other bots
+    message.data[1] = currentopinion;
+    message.data[2] = kilo_uid;
+    message.crc = message_crc(&message);
+
+    timer =  ran_expo(qnorm); //get time for exploration
+    state = 0; //go to exploration state
+
+    last_changed = kilo_ticks;
+    set_color(RGB(0, 0, 0));
+
+
+
+
 }
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -540,42 +537,42 @@ void donoisyswitch(){
 /*                                                                                               */
 /*-----------------------------------------------------------------------------------------------*/
 void gotodissemination(){
-        //printf("goes to dissemination \n");
-       //printf("enter dissm %d  %d \n", tiles_of_my_option,total_tiles_found);
+    //printf("goes to dissemination \n");
+    //printf("enter dissm %d  %d \n", tiles_of_my_option,total_tiles_found);
 
-       random_walk(); //lets random walk again
+    random_walk(); //lets random walk again
 
-       if ((kilo_ticks - last_changed) < timer) { //if within dissemination time
-           check_if_against_a_wall();  //check if bot is not near or on wall
+    if ((kilo_ticks - last_changed) < timer) { //if within dissemination time
+        check_if_against_a_wall();  //check if bot is not near or on wall
 
-           if(currentopinion != UNCOMMITTED){ //if the agent is not uncommitted
-               broadcast_msg = true; //then send out message to other bots
+        if(currentopinion != UNCOMMITTED){ //if the agent is not uncommitted
+            broadcast_msg = true; //then send out message to other bots
 
-               //set led colours
-               if (currentopinion == 1){
-                   set_color(RGB(1, 0, 0));
+            //set led colours
+            if (currentopinion == 1){
+                set_color(RGB(1, 0, 0));
 
-               } else if (currentopinion == 2){
-                   set_color(RGB(0, 1, 1));
+            } else if (currentopinion == 2){
+                set_color(RGB(0, 1, 1));
 
-               }
+            }
 
-           }else{ //if uncommitted
-               
-                   set_color(RGB(3, 3, 0)); //just light yellow
+        }else{ //if uncommitted
 
-           }
+            set_color(RGB(3, 3, 0)); //just light yellow
 
-        }else{ //if time for dissem is over
-           check_if_against_a_wall();  //is the bot getting hit the wall message
-           last_changed = kilo_ticks;
-           state = 2;//got to polling or noisy switch state
+        }
 
-       }
-       random_walk();
-    
-    
-    
+    }else{ //if time for dissem is over
+        check_if_against_a_wall();  //is the bot getting hit the wall message
+        last_changed = kilo_ticks;
+        state = 2;//go to polling or noisy switch state
+
+    }
+    random_walk();
+
+
+
 }
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -598,61 +595,61 @@ void update_grid_msg() {
 /*-----------------------------------------------------------------------------------------------*/
 void poll(){
 
-     if (new_message == 1){ //if bot seems to be getting a message from neighbour
+    if (new_message == 1){ //if bot seems to be getting a message from neighbour
 
         new_message = 0; //set message received flag to 0-not received
         option_received_from_neighbour = received_option; //consider the opinion of a message received from neighbour and save it
 
 
         if (MODEL == 1){ //if cross inhibition
-           
-                if(currentopinion != UNCOMMITTED){ //if I am not uncommited
 
-                      if (option_received_from_neighbour != currentopinion){ //check if my opinion is not equal
-                           //go uncommited
-                            printf("becomes uncommmitttedddddddddddd");
-                            currentopinion = UNCOMMITTED;
-                            //set_color(RGB(0, 3, 0));
-                            //delay(1000);
-                        //    delay(1000);
+            if(currentopinion != UNCOMMITTED){ //if I am not uncommited
 
-
-                      }else{//stay with my own opinion
-
-                          currentopinion = option_received_from_neighbour;
-
-                      }
-
-                }else{ //if I am uncommitted then get the opinion attained from neighbour
-
-                  currentopinion = option_received_from_neighbour;
+                if (option_received_from_neighbour != currentopinion){ //check if my opinion is not equal
+                    //go uncommited
+                    printf("becomes uncommmitttedddddddddddd");
+                    currentopinion = UNCOMMITTED;
+                    //set_color(RGB(0, 3, 0));
+                    //delay(1000);
+                    //    delay(1000);
 
 
+                }else{//stay with my own opinion
+
+                    currentopinion = option_received_from_neighbour;
 
                 }
 
-            
+            }else{ //if I am uncommitted then get the opinion attained from neighbour
+
+                currentopinion = option_received_from_neighbour;
+
+
+
+            }
+
+
         }
         if (MODEL == 0){ //if voter model
-          //printf("comeshere \n");
-          currentopinion = option_received_from_neighbour;// just switch the option to opinion received from neighbour
+            //printf("comeshere \n");
+            currentopinion = option_received_from_neighbour;// just switch the option to opinion received from neighbour
 
         }
 
         message.data[1] = currentopinion;
         message.data[2] = kilo_uid;
-        message.crc = message_crc(&message); 
-     
-     }else{    //if no neighbour found, stay with current opinion
+        message.crc = message_crc(&message);
 
-         //set messaege parameters
-         //currentopinion = current_opinion;
-          message.data[1] = currentopinion;
-          message.data[2] = kilo_uid;
-          message.crc = message_crc(&message);
-           
-           
-     }
+    }else{    //if no neighbour found, stay with current opinion
+
+        //set messaege parameters
+        //currentopinion = current_opinion;
+        message.data[1] = currentopinion;
+        message.data[2] = kilo_uid;
+        message.crc = message_crc(&message);
+
+
+    }
 
 
     option_received_from_neighbour = 0; //reset any option received from neighbour
@@ -661,7 +658,7 @@ void poll(){
     timer =  ran_expo(qnorm); // get the time for exploration
     last_changed = kilo_ticks;
     set_color(RGB(0, 0, 0));
-    
+
 }
 
 
@@ -687,13 +684,13 @@ void update_virtual_agent_msg() {
 #ifdef SIMULATION
 void message_rx( message_t *msg, distance_measurement_t *d ) {
 #else
-void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
+    void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
 #endif
     // check the messages
 
     if(msg->type == FROMBOT){ //if message from another bot
-      
-       // printf("hey i am a bot");
+
+        // printf("hey i am a bot");
 
         new_message = 1;        // Set the flag on message reception.
         distance = estimate_distance(d);
@@ -702,9 +699,9 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         received_uid = msg->data[2]; //get its uid
     }
     if(msg->type == GRID_MSG){ //if message from Kiogrid
-      // printf("message from grid\n"); // printf("%hhu\n", msg->data[0]); // printf("%hhu\n",msg->data[1]);
+        // printf("message from grid\n"); // printf("%hhu\n", msg->data[0]); // printf("%hhu\n",msg->data[1]);
 
-      received_option_kilogrid = msg->data[2];// get the opinion of the tile
+        received_option_kilogrid = msg->data[2];// get the opinion of the tile
         received_grid_msg_flag = true; //set the flag that message received from Kilogrid to true
 
 
@@ -715,32 +712,32 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
                     foundmodules[msg->data[0]][msg->data[1]] = 1; //set the flag that tile has been counted now
                     total_tiles_found += 1;
                     if((received_option_kilogrid==1 || received_option_kilogrid==6) && currentopinion == 1){ //if I am Red and I receive red from kilogrid
-                            tiles_of_my_option +=1 ;
+                        tiles_of_my_option +=1 ;
 
-                     }else if((received_option_kilogrid==3 || received_option_kilogrid==9) && currentopinion == 2){ //if I am blue and I receive blue from Kilogrid
-                            tiles_of_my_option +=1 ;
+                    }else if((received_option_kilogrid==3 || received_option_kilogrid==9) && currentopinion == 2){ //if I am blue and I receive blue from Kilogrid
+                        tiles_of_my_option +=1 ;
 
-                     }
+                    }
                 }
             }
-       }
+        }
 
-       // printf("%hhu\n",msg->data[2]);
-       // printf("%hhu\n",msg->data[3]);
+        // printf("%hhu\n",msg->data[2]);
+        // printf("%hhu\n",msg->data[3]);
         if (received_option_kilogrid == 6 || received_option_kilogrid == 9 || received_option_kilogrid == 0){  // robot sensed wall or near wall
-          //  printf("received hitwall option");
+            //  printf("received hitwall option");
             hit_wall = true; //-> set hit wall flag to true
             if(received_option_kilogrid == 6 || received_option_kilogrid == 9){ //if near the border of wall and not on white wall
 
                 kilogrid_commitment = msg->data[2]; //still get the opinion from grid
                 //printf("gets commitments\n");
-                
+
             }
         }else{
             hit_wall = false; //not hitting the wall
             kilogrid_commitment = msg->data[2]; //get the opinion from kilogrid
         }
-    
+
     }
     if(msg->type == INIT_MSG && !init_flag){
         // TODO add logic ...
@@ -752,12 +749,12 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
 //        current_ground = msg->data[3];
 //        communication_range = msg->data[4];
 
-         init_flag = true;
+        init_flag = true;
     }else if(msg->type == GRID_MSG && init_flag){
-    // TODO add logic ...
+        // TODO add logic ...
         //received_grid_msg_flag = true;
     }else if(msg->type == VIRTUAL_AGENT_MSG  && init_flag){
-    // TODO add logic ...
+        // TODO add logic ...
         //received_virtual_agent_msg_flag = true;
     }
     return;
@@ -801,25 +798,25 @@ void message_tx(){
 }
 */
 void message_tx_success(){ //if transmitted
-        broadcast_msg = false; //set transmitted flag to false
-        //set the colour
-         if (currentopinion == 1){
-            set_color(RGB(2, 0, 0));
-            delay(10);
-            set_color(RGB(0, 0, 0));
-        } else if (currentopinion == 2){
-            set_color(RGB(0, 2, 2));
-            delay(10);
-            set_color(RGB(0, 0, 0));
-        }
-    
+    broadcast_msg = false; //set transmitted flag to false
+    //set the colour
+    if (currentopinion == 1){
+        set_color(RGB(2, 0, 0));
+        delay(10);
+        set_color(RGB(0, 0, 0));
+    } else if (currentopinion == 2){
+        set_color(RGB(0, 2, 2));
+        delay(10);
+        set_color(RGB(0, 0, 0));
+    }
+
 }
 message_t *message_tx()
 {
-    	if( broadcast_msg ) { //if broadcast message flag is set to true (only in dissem state function)
-		return &message;
-	}
-	return 0;
+    if( broadcast_msg ) { //if broadcast message flag is set to true (only in dissem state function)
+        return &message;
+    }
+    return 0;
 }
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -857,20 +854,20 @@ void set_message(){
 /* Init function                                                                                 */
 /*-----------------------------------------------------------------------------------------------*/
 void setup(){
-    
-    
+
+
     srand(rand_hard());
-    
+
     random_walk();
 
-    //random timing for motion 
-	last_motion_ticks = rand() % max_straight_ticks + 1;
+    //random timing for motion
+    last_motion_ticks = rand() % max_straight_ticks + 1;
 
     //save the current ticks for comparison later on
     last_changed = kilo_ticks;
     message.type = FROMBOT; // set I am a bot
     // Quality A=1, B=2
-    
+
     if(kilo_uid % 2 == 0){ //choose muy opinion based on odd or even kilouid
         currentopinion = 1;
     }else{
@@ -885,9 +882,9 @@ void setup(){
     message.data[2] = kilo_uid;
     message.crc = message_crc(&message);
     timer =  ran_expo(qnorm); //get time to be in exploration state
-    
-    
-    
+
+
+
     //kilogrid variables
 #ifndef SIMULATION
     // for tracking the robot in real life
@@ -911,11 +908,11 @@ void loop() {
             //random_walk();
             //update_grid_msg();
             check_if_against_a_wall();  // checks if the robot is on wall
-           // received_grid_msg_flag = false;
+            // received_grid_msg_flag = false;
         }
 
         if (received_virtual_agent_msg_flag) {
-           // update_virtual_agent_msg();
+            // update_virtual_agent_msg();
             received_virtual_agent_msg_flag = false;
         }
 
@@ -924,50 +921,50 @@ void loop() {
     if (state == 0){ // if state is set to 0
 
 
-            gotoexploration(); //go to exploration
-        
+        gotoexploration(); //go to exploration
+
     }
-    
-    
+
+
 
     if (state == 2){  // state is set to 2
-        
-        //get the random number 0-1 to flip between selfsourced or social
+
+        //get the random number 0-1 to flip between self-sourced or social
         double u = r2();
 
         if (u <= noise){ //switch to noise check
             set_color(RGB(2, 2, 0));
-        
+
             donoisyswitch(); //do noisy switch
 
         } else{ //Go to Voting
-            
+
             poll();
-   
+
         }
-    
+
     }
-   if(state == 1 ){ // state is set to 1
-       
-       gotodissemination(); //go to dissemination function
+    if(state == 1 ){ // state is set to 1
 
-       
-       
-   }
-    
+        gotodissemination(); //go to dissemination function
 
 
-    #ifdef SIMULATION
-        // debug info - is now also important for the inter-robot communication, so do not delete
-        debug_info_set(currentopinion, currentopinion);
-    #else
-        tracking_data.byte[1] = received_x;
+
+    }
+
+
+
+#ifdef SIMULATION
+    // debug info - is now also important for the inter-robot communication, so do not delete
+    debug_info_set(currentopinion, currentopinion);
+#else
+    tracking_data.byte[1] = received_x;
         tracking_data.byte[2] = received_y;
         tracking_data.byte[3] = com_range;
         tracking_data.byte[4] = msg_number_current;
         kilob_tracking(&tracking_data);
-    #endif
-  }
+#endif
+}
 
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -986,8 +983,8 @@ int main(){
     // callback for received messages
     kilo_message_rx = message_rx;
     // start control loop
-    
-            // Register the message_tx callback function.
+
+    // Register the message_tx callback function.
     kilo_message_tx = message_tx;
     // Register the message_tx_success callback function.
     kilo_message_tx_success = message_tx_success;
