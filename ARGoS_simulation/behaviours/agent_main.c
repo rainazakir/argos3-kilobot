@@ -46,7 +46,7 @@
 #define GRID_MSG 11  // info msg from the kilogrid with option and position
 #define VIRTUAL_AGENT_MSG 12  // msg forwarded from the kilogrid
 #define TO_KILOGRID_MSG 62
-#define SWARMSIZE 100
+
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Change these when running experiment                                                          */
