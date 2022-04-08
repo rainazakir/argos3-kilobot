@@ -57,7 +57,7 @@ typedef struct {
     uint8_t data5;
     uint8_t data6;
     uint8_t data7;
-       int currentopinion; // value of robot gradient
+    int currentopinion; // The robot's opinion
 
 
 } debug_info_t;
