@@ -405,16 +405,14 @@ void gotoexploration(){
 
         if(timer == 0){ //if 0 tiles found of same opinion
             printf("timer is 00 here \n");
-            last_changed = kilo_ticks;
             state = 2;//directly go to noisy switch or polling state
             random_walk();
         }else{
-            last_changed = kilo_ticks;
             state = 1;//go to Dissemination mode
             // set_color(RGB(0, 0, 0));
-
         }
-
+	    
+	last_changed = kilo_ticks;
 
         //reset the variable that are used to find the qr for next exploration-dissem cycle
         memset(foundmodules, 0, sizeof(foundmodules[0][0]) * 18 * 38);
@@ -541,9 +539,9 @@ void gotodissemination(){
     //printf("enter dissm %d  %d \n", tiles_of_my_option,total_tiles_found);
 
     random_walk(); //lets random walk again
+    check_if_against_a_wall();  //check if bot is not near or on wall
 
     if ((kilo_ticks - last_changed) < timer) { //if within dissemination time
-        check_if_against_a_wall();  //check if bot is not near or on wall
 
         if(currentopinion != UNCOMMITTED){ //if the agent is not uncommitted
             broadcast_msg = true; //then send out message to other bots
@@ -564,7 +562,7 @@ void gotodissemination(){
         }
 
     }else{ //if time for dissem is over
-        check_if_against_a_wall();  //is the bot getting hit the wall message
+        //check_if_against_a_wall();  //is the bot getting hit the wall message
         last_changed = kilo_ticks;
         state = 2;//go to polling or noisy switch state
 
