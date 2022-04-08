@@ -429,6 +429,7 @@ void gotoexploration(){
 
 void donoisyswitch(){
     printf("opts for noisy switch noise fro kilgorid \n");
+    check_if_against_a_wall(); //are we getting a wall signal from Kilogrid
 
     if (MODEL == 1){ //if cross inhibition and noise switching
 
@@ -438,7 +439,6 @@ void donoisyswitch(){
             if (received_grid_msg_flag) { //if received message from kilogrid
                 printf("receives message from grid \n");
 
-                check_if_against_a_wall(); //are we getting a wall signal from Kilogrid
 
                 if(kilogrid_commitment == 1 || kilogrid_commitment == 6){  //if it option A- red recived from Kilogrid  (1 for a normal red tile and 6 for border red tile)
                     printf("%d  changes commitment to 1 from kilogrid\n", kilogrid_commitment);
