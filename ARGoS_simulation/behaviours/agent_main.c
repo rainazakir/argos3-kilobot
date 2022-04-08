@@ -433,9 +433,8 @@ void donoisyswitch(){
     printf("opts for noisy switch noise fro kilgorid \n");
     check_if_against_a_wall(); //are we getting a wall signal from Kilogrid
 
-    if (MODEL == 1){ //if cross inhibition and noise switching
 
-        if(init_flag){  // initalization happened from Kilogrid
+    if(init_flag){  // initalization happened from Kilogrid
             // run logic
             // process received msgs
             if (received_grid_msg_flag) { //if received message from kilogrid
@@ -470,47 +469,8 @@ void donoisyswitch(){
 
         }
 
-    }
+    
 
-
-    if (MODEL == 0){ //if voter model and noise switching
-        //printf("comes to MODEL 0 loop in noisy swicth");
-        if(init_flag){  // initialization happened for Kilogrid
-
-            // run logic
-            // process received msgs
-            if (received_grid_msg_flag) { // if received message from Kilogrid
-                //  printf("comes to received_grid_msg_flag \n");
-
-                if(kilogrid_commitment == 1 || kilogrid_commitment == 6){ //if option A received from Kilogrid (1 for a normal red tile and 6 for border red tile)
-                    printf("%d  changes commitment to 1 from kilogrid \n", kilogrid_commitment);
-
-                    currentopinion = 1; //change opinion to A - Red - 1
-                    set_color(RGB(1, 0, 0));
-
-                } else if(kilogrid_commitment == 3 || kilogrid_commitment ==9){ //if option B-Blue received from Kilogrid (3 for a normal blue tile and 9 for border blue tile)
-                    printf("%d  changes commitment to 2 from kilogrid \n", kilogrid_commitment);
-
-                    currentopinion = 2; //change opinion to B - Blue - 2
-                    set_color(RGB(0, 1, 1));
-
-                }
-
-                received_grid_msg_flag = false; //set Kilogrid messaged received to False to get next
-
-            }
-
-            if (received_virtual_agent_msg_flag) {
-                // update_virtual_agent_msg();
-                received_virtual_agent_msg_flag = false;
-            }
-
-            // TODO add logic here ...
-            // example robot sends empty message to the kilogrid
-
-        }
-
-    }
 
 
     //set parameters for sending message to other bots
