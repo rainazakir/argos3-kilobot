@@ -323,7 +323,7 @@ void findqualityratio(){
     qratio = ((float)tiles_of_my_option/total_tiles_found);  //find % of tiles of opinion bot supports
 
     if(qratio >= 0.5){ //if % more than or equal to 0.5
-        qratio = 1/((1/1)*dissemparam); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
+        qratio = 1/(dissemparam); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
 
     }else{ //otherwise calculate dissem time based on % found 0-0.4999
         qratio = 1/(((float)tiles_of_my_option/total_tiles_found)*dissemparam); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
