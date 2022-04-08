@@ -61,6 +61,7 @@ int currentopinion; //1
 double timer; // to hold time to be in each state
 double qnorm = 0.0003; //***--> time to be in exploration state--> fixed---increased to about 6112ticks/32ms
 double quncommitted = 0.005; // time to stay in dissemination for uncommitted agents
+double dissemparam = 1300.0;
 
 int foundmodules[18][38] = {0}; //to keep track of tiles visited in one exploration cycle
 float qratio; //to store quality based ont the tiles explored
@@ -322,16 +323,16 @@ void findqualityratio(){
     qratio = ((float)tiles_of_my_option/total_tiles_found);  //find % of tiles of opinion bot supports
 
     if(qratio >= 0.5){ //if % more than or equal to 0.5
-        qratio = 1/(((float)1/1)*1300); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
+        qratio = 1/((1/1)*dissemparam); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
 
     }else{ //otherwise calculate dissem time based on % found 0-0.4999
-        qratio = 1/(((float)tiles_of_my_option/total_tiles_found)*1300); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
+        qratio = 1/(((float)tiles_of_my_option/total_tiles_found)*dissemparam); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
 
     }
 
     // qratio = 1/(((float)tiles_of_my_option/total_tiles_found)*1000); //like valentini model inverse lambda
 
-    //  printf("%d tile my op %d total tiles and qr %f \n", tiles_of_my_option,total_tiles_found, qratio);
+     printf("%d tile my op %d total tiles and qr %f \n", tiles_of_my_option,total_tiles_found, qratio);
 
 }
 
@@ -352,7 +353,7 @@ void calculatedissemtime(){
                 //timer =  ran_expo(q0);
             }
         }else{ //if not uncommitted and tiles own opinion found to be = 0
-            //printf("% f  goes directly to voting    \n", qratio);
+            printf("% f  goes directly to voting    \n", qratio);
             timer = 0;  //no time as will go directly to poll/noisyswitch state
             //timer = ran_expo(0.003);
         }
@@ -409,8 +410,8 @@ void gotoexploration(){
             state = 1;//go to Dissemination mode
             // set_color(RGB(0, 0, 0));
         }
-	    
-	last_changed = kilo_ticks;
+
+        last_changed = kilo_ticks;
 
         //reset the variable that are used to find the qr for next exploration-dissem cycle
         memset(foundmodules, 0, sizeof(foundmodules[0][0]) * 18 * 38);
@@ -565,7 +566,7 @@ void gotodissemination(){
         state = 2;//go to polling or noisy switch state
 
     }
-   // random_walk();
+    // random_walk();
 
 
 
