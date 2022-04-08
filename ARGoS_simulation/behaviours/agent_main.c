@@ -567,7 +567,7 @@ void gotodissemination(){
         state = 2;//go to polling or noisy switch state
 
     }
-    random_walk();
+   // random_walk();
 
 
 
