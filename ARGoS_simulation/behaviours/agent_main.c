@@ -87,7 +87,6 @@ typedef enum {
 /* Motion related Variables                                                                      */
 /*-----------------------------------------------------------------------------------------------*/
 motion_t current_motion_type = STOP;
-const bool CALIBRATED = true;  // flag if robot is calibrated??
 unsigned int turning_ticks = 0;
 const uint8_t max_turning_ticks = 150; //*** constant to set maximum rotation to turn during random walk
 const uint32_t max_straight_ticks = 300; //*** set the time to walk straight before randomly turning
@@ -132,8 +131,7 @@ IR_message_t* message;
 // Flag to keep track of new messages.
 message_t message;
 int new_message = 0;
-message_t received;
-int distance;
+
 int last_changed;
 // Flag to keep track of message transmission.
 int message_sent = 0;
@@ -158,7 +156,6 @@ int option_received_from_neighbour;
 //sets the qratios, 6/3=2, change values to vary//  double q3 = 0.003;//***quality for A,// double q1 = 0.006;//*** quality for B
 //double q3 = 0.003;//***qualities are same for A and B for now
 //double q1 = 0.003;//***qualities are same for A and B for now
-
 
 /*-----------------------------------------------------------------------------------------------*/
 /*-----------------------------------------------------------------------------------------------*/
@@ -691,8 +688,6 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
         // printf("hey i am a bot");
 
         new_message = 1;        // Set the flag on message reception.
-        distance = estimate_distance(d);
-        received = *msg;
         received_option = msg->data[1]; //get its option
         received_uid = msg->data[2]; //get its uid
     }
