@@ -13,12 +13,12 @@
 
 #include "kilolib.h"
 #include <kilolib.h>
+#include <math.h>
 
 #ifdef SIMULATION
 
 #include <stdio.h>
 #include <float.h>
-#include <math.h>
 #include "agent.h"
 #include <debug.h>
 
@@ -30,7 +30,7 @@
 #include "kilo_rand_lib.h"
 #include "../communication.h"
 #include "kilob_messaging.h"
-#include <math.h>
+
 
 #endif
 
