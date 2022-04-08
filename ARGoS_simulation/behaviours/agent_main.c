@@ -102,6 +102,7 @@ int last_changed = 0;
 /*-----------------------------------------------------------------------------------------------*/
 /* Communication variables - used for communication and stuff                                    */
 /*-----------------------------------------------------------------------------------------------*/
+bool broadcast_msg = false;
 // how often we try to send the msg - in simulation once is sufficient
 #ifdef SIMULATION
 #define MSG_SEND_TRIES 1
@@ -118,11 +119,11 @@ bool received_grid_msg_flag = false;
 bool received_virtual_agent_msg_flag = false;
 // message content
 #ifdef SIMULATION
-bool broadcast_msg = false;
-uint8_t communication_range_msg = 0;
-uint8_t x_pos_msg = 0;
-uint8_t y_pos_msg = 0;
-uint32_t msg_counter = 0;
+
+//uint8_t communication_range_msg = 0;
+//uint8_t x_pos_msg = 0;
+//uint8_t y_pos_msg = 0;
+//uint32_t msg_counter = 0;
 
 #else
 IR_message_t* message;
