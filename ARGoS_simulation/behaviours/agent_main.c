@@ -46,12 +46,12 @@
 #define GRID_MSG 11  // info msg from the kilogrid with option and position
 #define VIRTUAL_AGENT_MSG 12  // msg forwarded from the kilogrid
 #define TO_KILOGRID_MSG 62
-
+#define min(a,b) ((a) < (b) ? a : b)
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Change these when running experiment                                                          */
 /*-----------------------------------------------------------------------------------------------*/
-#define MODEL 0   // 0 --> Voter Model      1 --> CrossInhibition
+#define MODEL 1   // 0 --> Voter Model      1 --> CrossInhibition
 double noise = 0.1; // SET THIS TO -1 FOR NO NOISE, 0.1--> 0.05, 0.5-->0.25
 /*-----------------------------------------------------------------------------------------------*/
 
@@ -327,7 +327,7 @@ int find_index(int a[], int num_elements, int value)
 /* This function is used to convert the tiles perceived in an expl-dissem cycle to quality       */
 /* of  its opinion. If q>=0.5, all qr is taken as 1. The function is inverse lambda expon.       */
 /*-----------------------------------------------------------------------------------------------*/
-
+/*
 void findqualityratio(){
 
     qratio = ((float)tiles_of_my_option/total_tiles_found);  //find % of tiles of opinion bot supports
@@ -345,26 +345,23 @@ void findqualityratio(){
     printf("%d tile my op %d total tiles and qr %f \n", tiles_of_my_option,total_tiles_found, qratio);
 
 }
-
+*/
 /*-----------------------------------------------------------------------------------------------*/
 /* This function is used to find the time to disseminate based on the output of qr from          */
 /*                      findqualityratio() function.                                            */
 /*-----------------------------------------------------------------------------------------------*/
+/*
 void calculatedissemtime(){
 
     if (isnan(qratio) || isinf(qratio)){  //if quality was found to be 0
-        if(MODEL == 1){ //if cross-inhibition
+        if(MODEL == 1 && currentopinion == UNCOMMITTED){ //if cross-inhibition and if bot is uncommitted
 
-            if (currentopinion == UNCOMMITTED){ //if bot is uncommitted
                 printf("comes to time of uncommitted agent in noisy switch \n");
                 timer =  ran_expo(quncommitted); //set time to be in dissem state but will not talk
-            }else{
-                timer = 0;
-                //timer =  ran_expo(q0);
-            }
+
         }else{ //if not uncommitted and tiles own opinion found to be = 0
             printf("% f  goes directly to voting    \n", qratio);
-            timer = 0;  //no time as will go directly to poll/noisyswitch state
+            timer = 0;  //no time as will go directly to poll/noisy switch state
             //timer = ran_expo(0.003);
         }
 
@@ -376,7 +373,43 @@ void calculatedissemtime(){
         //}
     }
 }
+*/
 
+void findqualityratio(){
+    if (tiles_of_my_option > 0){
+        qratio = ((float)tiles_of_my_option/total_tiles_found);
+    } else {
+        qratio = 0;
+    }
+    printf("%d tile my op %d total tiles and qr %f \n", tiles_of_my_option,total_tiles_found, qratio);
+
+
+}
+
+void calculatedissemtime(){
+
+    if(MODEL == 1 && currentopinion == UNCOMMITTED){ // if MODEL is cross-inhibition and bot is uncommitted
+
+        timer =  ran_expo(quncommitted); //set time to be in dissem state but will not talk
+        printf("timer is %f \n", quncommitted);
+
+
+    } else {
+        double lambda = 0;
+        if(qratio >= 0.5){ //if % more than or equal to 0.5
+             lambda = 1/(dissemparam); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
+
+        }else { //otherwise calculate dissem time based on % found 0-0.4999
+             lambda = 1 / ((qratio) * dissemparam); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
+        }
+        timer = ran_expo(lambda);
+
+        printf("timer is %f \n", lambda);
+
+    }
+
+
+}
 /*-----------------------------------------------------------------------------------------------*/
 /*                              The Exploration function                                         */
 /*                                                                                               */
