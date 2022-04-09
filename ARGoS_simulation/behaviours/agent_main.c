@@ -65,7 +65,9 @@ double dissemparam = 1300.0;
 
 int foundmodules[18][38] = {0}; //to keep track of tiles visited in one exploration cycle
 float qratio; //to store quality based ont the tiles explored
-int state = 0; //0--> Exploration , 1-->Dissemination , 2-->Voting // start in exploration state
+
+
+//int state = 0; //0--> Exploration , 1-->Dissemination , 2-->Voting // start in exploration state
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Enum section - here we can define useful enums                                                */
@@ -83,6 +85,14 @@ typedef enum {
     TURN_RIGHT,
 } motion_t;
 
+/* Enum for different states */
+typedef enum {
+    EXPLORATION,
+    DISSEMINATION,
+    VoteOrNoise,
+} state;
+/*-----------------------------------------------------------------------------------------------*/
+state current_state = EXPLORATION;
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Motion related Variables                                                                      */
@@ -332,7 +342,7 @@ void findqualityratio(){
 
     // qratio = 1/(((float)tiles_of_my_option/total_tiles_found)*1000); //like valentini model inverse lambda
 
-     printf("%d tile my op %d total tiles and qr %f \n", tiles_of_my_option,total_tiles_found, qratio);
+    printf("%d tile my op %d total tiles and qr %f \n", tiles_of_my_option,total_tiles_found, qratio);
 
 }
 
@@ -404,10 +414,10 @@ void gotoexploration(){
 
         if(timer == 0){ //if 0 tiles found of same opinion
             printf("timer is 00 here \n");
-            state = 2;//directly go to noisy switch or polling state
+            current_state = VoteOrNoise;//directly go to noisy switch or polling state
             random_walk();
         }else{
-            state = 1;//go to Dissemination mode
+            current_state = DISSEMINATION;//go to Dissemination mode
             // set_color(RGB(0, 0, 0));
         }
 
@@ -435,41 +445,41 @@ void donoisyswitch(){
 
 
     if(init_flag){  // initalization happened from Kilogrid
-            // run logic
-            // process received msgs
-            if (received_grid_msg_flag) { //if received message from kilogrid
-                printf("receives message from grid \n");
+        // run logic
+        // process received msgs
+        if (received_grid_msg_flag) { //if received message from kilogrid
+            printf("receives message from grid \n");
 
 
-                if(kilogrid_commitment == 1 || kilogrid_commitment == 6){  //if it option A- red recived from Kilogrid  (1 for a normal red tile and 6 for border red tile)
-                    printf("%d  changes commitment to 1 from kilogrid\n", kilogrid_commitment);
+            if(kilogrid_commitment == 1 || kilogrid_commitment == 6){  //if it option A- red recived from Kilogrid  (1 for a normal red tile and 6 for border red tile)
+                printf("%d  changes commitment to 1 from kilogrid\n", kilogrid_commitment);
 
-                    currentopinion = 1; //change opinion to A- Red - 1
-                    set_color(RGB(1, 0, 0));
-
-
-                } else if(kilogrid_commitment == 3 || kilogrid_commitment == 9){  //if its option b- Blue received from Kilogrid (3 for a normal blue tile and 9 for border blue tile)
-                    printf("%d  changes commitment to 2 from kilogrid\n", kilogrid_commitment);
-
-                    currentopinion = 2; //change option to B- Blue - 2
-                    set_color(RGB(0, 1, 1));
+                currentopinion = 1; //change opinion to A- Red - 1
+                set_color(RGB(1, 0, 0));
 
 
-                }
+            } else if(kilogrid_commitment == 3 || kilogrid_commitment == 9){  //if its option b- Blue received from Kilogrid (3 for a normal blue tile and 9 for border blue tile)
+                printf("%d  changes commitment to 2 from kilogrid\n", kilogrid_commitment);
 
+                currentopinion = 2; //change option to B- Blue - 2
+                set_color(RGB(0, 1, 1));
 
-                received_grid_msg_flag = false;  //set Kilogrid messaged received to False to get next
 
             }
 
-            if (received_virtual_agent_msg_flag) { //this we are not using its when Kilobot does communciation
-                // update_virtual_agent_msg();
-                received_virtual_agent_msg_flag = false;
-            }
+
+            received_grid_msg_flag = false;  //set Kilogrid messaged received to False to get next
 
         }
 
-    
+        if (received_virtual_agent_msg_flag) { //this we are not using its when Kilobot does communciation
+            // update_virtual_agent_msg();
+            received_virtual_agent_msg_flag = false;
+        }
+
+    }
+
+
 
 
 
@@ -479,7 +489,7 @@ void donoisyswitch(){
     message.crc = message_crc(&message);
 
     timer =  ran_expo(qnorm); //get time for exploration
-    state = 0; //go to exploration state
+    current_state = EXPLORATION; //go to exploration state
 
     last_changed = kilo_ticks;
     set_color(RGB(0, 0, 0));
@@ -523,7 +533,7 @@ void gotodissemination(){
     }else{ //if time for dissem is over
         //check_if_against_a_wall();  //is the bot getting hit the wall message
         last_changed = kilo_ticks;
-        state = 2;//go to polling or noisy switch state
+        current_state = VoteOrNoise;//go to polling or noisy switch state
 
     }
     // random_walk();
@@ -611,7 +621,7 @@ void poll(){
 
     option_received_from_neighbour = 0; //reset any option received from neighbour
     //go to exploration state
-    state = 0;
+    current_state = EXPLORATION;
     timer =  ran_expo(qnorm); // get the time for exploration
     last_changed = kilo_ticks;
     set_color(RGB(0, 0, 0));
@@ -660,7 +670,7 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
         received_grid_msg_flag = true; //set the flag that message received from Kilogrid to true
 
 
-        if (state == 0){ //if the bot is in exploration state
+        if (current_state == EXPLORATION){ //if the bot is in exploration state
             if(received_option_kilogrid != 0){ //if the the bot is not on the wall-white border
                 if (foundmodules[msg->data[0]][msg->data[1]] == 0){ //if tile not counted previously
 
@@ -873,7 +883,7 @@ void loop() {
 
     }
 
-    if (state == 0){ // if state is set to 0
+    if (current_state == EXPLORATION){ // if state is set to 0
 
 
         gotoexploration(); //go to exploration
@@ -882,7 +892,7 @@ void loop() {
 
 
 
-    if (state == 2){  // state is set to 2
+    if (current_state == VoteOrNoise){  // state is set to choose between Vote or Noise
 
         //get the random number 0-1 to flip between self-sourced or social
         double u = r2();
@@ -899,7 +909,7 @@ void loop() {
         }
 
     }
-    if(state == 1 ){ // state is set to 1
+    if(current_state == DISSEMINATION ){ // state is set to 1- Dissem
 
         gotodissemination(); //go to dissemination function
 
