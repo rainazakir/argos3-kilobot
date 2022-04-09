@@ -383,7 +383,7 @@ void calculatedissemtime(){
 /*-----------------------------------------------------------------------------------------------*/
 void gotoexploration(){
 
-    random_walk(); //start with random walk
+  //  random_walk(); //start with random walk
 
     //set led colours
     if (currentopinion == 1){
@@ -415,7 +415,7 @@ void gotoexploration(){
         if(timer == 0){ //if 0 tiles found of same opinion
             printf("timer is 00 here \n");
             current_state = VoteOrNoise;//directly go to noisy switch or polling state
-            random_walk();
+           // random_walk();
         }else{
             current_state = DISSEMINATION;//go to Dissemination mode
             // set_color(RGB(0, 0, 0));
@@ -507,7 +507,7 @@ void gotodissemination(){
     //printf("goes to dissemination \n");
     //printf("enter dissm %d  %d \n", tiles_of_my_option,total_tiles_found);
 
-    random_walk(); //lets random walk again
+    //random_walk(); //lets random walk again
     check_if_against_a_wall();  //check if bot is not near or on wall
 
     if ((kilo_ticks - last_changed) < timer) { //if within dissemination time
@@ -869,12 +869,12 @@ void loop() {
 
     if(init_flag){  // initialization happened and messaged received from Kilogrid
 
-        if (received_grid_msg_flag) {
+       // if (received_grid_msg_flag) {
             //random_walk();
             //update_grid_msg();
-            check_if_against_a_wall();  // checks if the robot is on wall
+           // check_if_against_a_wall();  // checks if the robot is on wall
             // received_grid_msg_flag = false;
-        }
+       // }
 
         if (received_virtual_agent_msg_flag) {
             // update_virtual_agent_msg();
@@ -882,6 +882,10 @@ void loop() {
         }
 
     }
+
+    check_if_against_a_wall();
+
+    random_walk();
 
     if (current_state == EXPLORATION){ // if state is set to 0
 
