@@ -46,7 +46,6 @@
 #define GRID_MSG 11  // info msg from the kilogrid with option and position
 #define VIRTUAL_AGENT_MSG 12  // msg forwarded from the kilogrid
 #define TO_KILOGRID_MSG 62
-#define min(a,b) ((a) < (b) ? a : b)
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Change these when running experiment                                                          */
@@ -59,8 +58,8 @@ double noise = 0.1; // SET THIS TO -1 FOR NO NOISE, 0.1--> 0.05, 0.5-->0.25
 int currentopinion; //1
 
 double timer; // to hold time to be in each state
-double qnorm = 0.0003; //***--> time to be in exploration state--> fixed---increased to about 6112ticks/32ms
-double quncommitted = 0.005; // time to stay in dissemination for uncommitted agents
+double qnorm_lambda = 1/3333.33; //***--> time to be in exploration state--> fixed
+double quncommitted_lambda = 1/200; // time to stay in dissemination for uncommitted agents
 double dissemparam = 1300.0;
 
 int foundmodules[18][38] = {0}; //to keep track of tiles visited in one exploration cycle
@@ -390,8 +389,8 @@ void calculatedissemtime(){
 
     if(MODEL == 1 && currentopinion == UNCOMMITTED){ // if MODEL is cross-inhibition and bot is uncommitted
 
-        timer =  ran_expo(quncommitted); //set time to be in dissem state but will not talk
-        printf("timer is %f \n", quncommitted);
+        timer =  ran_expo(quncommitted_lambda); //set time to be in dissem state but will not talk
+        printf("timer is %f \n", quncommitted_lambda);
 
 
     } else {
@@ -521,7 +520,7 @@ void donoisyswitch(){
     message.data[2] = kilo_uid;
     message.crc = message_crc(&message);
 
-    timer =  ran_expo(qnorm); //get time for exploration
+    timer =  ran_expo(qnorm_lambda); //get time for exploration
     current_state = EXPLORATION; //go to exploration state
 
     last_changed = kilo_ticks;
@@ -614,11 +613,11 @@ void poll(){
                     //    delay(1000);
 
 
-                }/* else{//stay with my own opinion
+                }else{//stay with my own opinion
 
                     currentopinion = option_received_from_neighbour;
 
-                } */
+                }
 
             }else{ //if I am uncommitted then get the opinion attained from neighbour
 
@@ -655,7 +654,7 @@ void poll(){
     option_received_from_neighbour = 0; //reset any option received from neighbour
     //go to exploration state
     current_state = EXPLORATION;
-    timer =  ran_expo(qnorm); // get the time for exploration
+    timer =  ran_expo(qnorm_lambda); // get the time for exploration
     last_changed = kilo_ticks;
     set_color(RGB(0, 0, 0));
 
@@ -879,7 +878,7 @@ void setup(){
     message.data[1] = currentopinion;
     message.data[2] = kilo_uid;
     message.crc = message_crc(&message);
-    timer =  ran_expo(qnorm); //get time to be in exploration state
+    timer =  ran_expo(qnorm_lambda); //get time to be in exploration state
 
 
 
