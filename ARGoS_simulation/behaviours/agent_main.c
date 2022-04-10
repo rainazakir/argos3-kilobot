@@ -58,8 +58,8 @@ double noise = 0.1; // SET THIS TO -1 FOR NO NOISE, 0.1--> 0.05, 0.5-->0.25
 int currentopinion; //1
 
 double timer; // to hold time to be in each state
-double qnorm_lambda = 1/3333.33; //***--> time to be in exploration state--> fixed
-double quncommitted_lambda = 1/200; // time to stay in dissemination for uncommitted agents
+double qnorm_lambda = 1.0/3333.33; //***--> time to be in exploration state--> fixed
+double quncommitted_lambda = 1.0/200.0; // time to stay in dissemination for uncommitted agents
 double dissemparam = 1300.0;
 
 int foundmodules[18][38] = {0}; //to keep track of tiles visited in one exploration cycle
