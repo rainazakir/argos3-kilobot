@@ -878,7 +878,7 @@ void setup(){
     message.data[1] = currentopinion;
     message.data[2] = kilo_uid;
     message.crc = message_crc(&message);
-    timer =  ran_expo(1/avg_exploration_time); //get time to be in exploration state
+    timer =  ran_expo(1.0/avg_exploration_time); //get time to be in exploration state
 
 
 
