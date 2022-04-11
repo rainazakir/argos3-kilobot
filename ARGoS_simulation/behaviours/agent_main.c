@@ -613,11 +613,11 @@ void poll(){
                     //    delay(1000);
 
 
-                }else{//stay with my own opinion
+                }//else{//stay with my own opinion
 
-                    currentopinion = option_received_from_neighbour;
+                  //  currentopinion = option_received_from_neighbour;
 
-                }
+               // }
 
             }else{ //if I am uncommitted then get the opinion attained from neighbour
 
