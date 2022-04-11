@@ -150,6 +150,7 @@ int message_sent = 0;
 int received_option; //to save an opinion received from another bot
 int received_option_kilogrid; // to save option received from kilogrid
 int received_uid; //previously used to save neighbours kilouid temporarily
+int wall_flag; //to check if wall signal or not
 /*-----------------------------------------------------------------------------------------------*/
 /* Arena variables                                                                               */
 /*-----------------------------------------------------------------------------------------------*/
@@ -483,14 +484,14 @@ void donoisyswitch(){
             printf("receives message from grid \n");
 
 
-            if(kilogrid_commitment == 1 || kilogrid_commitment == 6){  //if it option A- red recived from Kilogrid  (1 for a normal red tile and 6 for border red tile)
+            if(kilogrid_commitment == 1){  //if it option A- red recived from Kilogrid  (1 for a normal red tile and 6 for border red tile)
                 printf("%d  changes commitment to 1 from kilogrid\n", kilogrid_commitment);
 
                 currentopinion = 1; //change opinion to A- Red - 1
                 set_color(RGB(1, 0, 0));
 
 
-            } else if(kilogrid_commitment == 3 || kilogrid_commitment == 9){  //if its option b- Blue received from Kilogrid (3 for a normal blue tile and 9 for border blue tile)
+            } else if(kilogrid_commitment == 2){  //if its option b- Blue received from Kilogrid (3 for a normal blue tile and 9 for border blue tile)
                 printf("%d  changes commitment to 2 from kilogrid\n", kilogrid_commitment);
 
                 currentopinion = 2; //change option to B- Blue - 2
@@ -696,9 +697,15 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
         received_uid = msg->data[2]; //get its uid
     }
     if(msg->type == GRID_MSG){ //if message from Kiogrid
-        // printf("message from grid\n"); // printf("%hhu\n", msg->data[0]); // printf("%hhu\n",msg->data[1]);
+        //printf("message from grid\n");
+        //printf("%hhu\n", msg->data[0]);
+        //printf("%hhu\n",msg->data[1]);
+        //printf("%hhu\n",msg->data[2]);
+        //printf("%hhu cell role\n",msg->data[3]);
 
         received_option_kilogrid = msg->data[2];// get the opinion of the tile
+        wall_flag = msg->data[3];// if wall then 42, if near wall 62 else 0
+
         received_grid_msg_flag = true; //set the flag that message received from Kilogrid to true
 
 
@@ -708,10 +715,10 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
 
                     foundmodules[msg->data[0]][msg->data[1]] = 1; //set the flag that tile has been counted now
                     total_tiles_found += 1;
-                    if((received_option_kilogrid==1 || received_option_kilogrid==6) && currentopinion == 1){ //if I am Red and I receive red from kilogrid
+                    if((received_option_kilogrid==1) && currentopinion == 1){ //if I am Red and I receive red from kilogrid
                         tiles_of_my_option +=1 ;
 
-                    }else if((received_option_kilogrid==3 || received_option_kilogrid==9) && currentopinion == 2){ //if I am blue and I receive blue from Kilogrid
+                    }else if((received_option_kilogrid==2) && currentopinion == 2){ //if I am blue and I receive blue from Kilogrid
                         tiles_of_my_option +=1 ;
 
                     }
@@ -721,10 +728,10 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
 
         // printf("%hhu\n",msg->data[2]);
         // printf("%hhu\n",msg->data[3]);
-        if (received_option_kilogrid == 6 || received_option_kilogrid == 9 || received_option_kilogrid == 0){  // robot sensed wall or near wall
+        if (wall_flag == 62 || wall_flag == 42){  // robot sensed wall or near wall
             //  printf("received hitwall option");
             hit_wall = true; //-> set hit wall flag to true
-            if(received_option_kilogrid == 6 || received_option_kilogrid == 9){ //if near the border of wall and not on white wall
+            if(wall_flag == 62){ //if near the border of wall and not on white wall
 
                 kilogrid_commitment = msg->data[2]; //still get the opinion from grid
                 //printf("gets commitments\n");
