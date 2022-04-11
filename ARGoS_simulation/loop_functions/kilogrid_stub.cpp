@@ -212,9 +212,9 @@ CColor CKilogrid::GetFloorColor(const CVector2 &vec_position_on_plane) {
     }else if(id == 1){
         cColor=CColor::RED;
     }else if(id == 2){
-        cColor=CColor::GREEN; //bad approach for testing is to change to blue.
+        cColor=CColor::BLUE; //bad approach for testing is to change to blue.
     }else if(id == 3){
-        cColor=CColor::BLUE;
+        cColor=CColor::GREEN;
     }else if(id == 4){
         cColor=CColor::BROWN;
     }else if(id == 5){
