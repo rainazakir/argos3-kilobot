@@ -46,7 +46,7 @@
 #define GRID_MSG 11  // info msg from the kilogrid with option and position
 #define VIRTUAL_AGENT_MSG 12  // msg forwarded from the kilogrid
 #define TO_KILOGRID_MSG 62
-
+#define min(a,b) ((a) < (b) ? a : b)
 /*-----------------------------------------------------------------------------------------------*/
 /* Change these when running experiment                                                          */
 /*-----------------------------------------------------------------------------------------------*/
@@ -395,13 +395,7 @@ void calculatedissemtime(){
 
 
     } else {
-        double lambda = 0;
-        if(qratio >= 0.5){ //if % more than or equal to 0.5
-            lambda = 1/(dissemparam); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
-
-        }else { //otherwise calculate dissem time based on % found 0-0.4999
-            lambda = 1 / ((qratio) * dissemparam); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
-        }
+        double lambda = 1.0 / (min(1.0, qratio*2) * dissemparam);
         timer = ran_expo(lambda);
 
         printf("timer is %f \n", lambda);
