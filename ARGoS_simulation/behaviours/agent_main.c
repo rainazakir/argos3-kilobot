@@ -58,8 +58,8 @@ double noise = 0.1; // SET THIS TO -1 FOR NO NOISE, 0.1--> 0.05, 0.5-->0.25
 int currentopinion; //1
 
 double timer; // to hold time to be in each state
-double qnorm_lambda = 1.0/3333.33; //***--> time to be in exploration state--> fixed
-double quncommitted_lambda = 1.0/200.0; // time to stay in dissemination for uncommitted agents
+double avg_exploration_time = 3300.0; //***--> time to be in exploration state--> fixed
+double avg_uncommitted_time = 200.0; // time to stay in dissemination for uncommitted agents
 double dissemparam = 1300.0;
 
 int foundmodules[18][38] = {0}; //to keep track of tiles visited in one exploration cycle
@@ -389,17 +389,17 @@ void calculatedissemtime(){
 
     if(MODEL == 1 && currentopinion == UNCOMMITTED){ // if MODEL is cross-inhibition and bot is uncommitted
 
-        timer =  ran_expo(quncommitted_lambda); //set time to be in dissem state but will not talk
-        printf("timer is %f \n", quncommitted_lambda);
+        timer =  ran_expo(1.0/avg_uncommitted_time); //set time to be in dissem state but will not talk
+        printf("timer is %f \n", 1.0/avg_uncommitted_time);
 
 
     } else {
         double lambda = 0;
         if(qratio >= 0.5){ //if % more than or equal to 0.5
-             lambda = 1/(dissemparam); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
+            lambda = 1/(dissemparam); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
 
         }else { //otherwise calculate dissem time based on % found 0-0.4999
-             lambda = 1 / ((qratio) * dissemparam); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
+            lambda = 1 / ((qratio) * dissemparam); //like valentini model inverse lambda, 1300 instead of 1000 to increase dissem time
         }
         timer = ran_expo(lambda);
 
@@ -415,7 +415,7 @@ void calculatedissemtime(){
 /*-----------------------------------------------------------------------------------------------*/
 void gotoexploration(){
 
-  //  random_walk(); //start with random walk
+    //  random_walk(); //start with random walk
 
     //set led colours
     if (currentopinion == 1){
@@ -447,7 +447,7 @@ void gotoexploration(){
         if(timer == 0){ //if 0 tiles found of same opinion
             printf("timer is 00 here \n");
             current_state = VoteOrNoise;//directly go to noisy switch or polling state
-           // random_walk();
+            // random_walk();
         }else{
             current_state = DISSEMINATION;//go to Dissemination mode
             // set_color(RGB(0, 0, 0));
@@ -520,7 +520,7 @@ void donoisyswitch(){
     message.data[2] = kilo_uid;
     message.crc = message_crc(&message);
 
-    timer =  ran_expo(qnorm_lambda); //get time for exploration
+    timer =  ran_expo(1.0/avg_exploration_time); //get time for exploration
     current_state = EXPLORATION; //go to exploration state
 
     last_changed = kilo_ticks;
@@ -615,9 +615,9 @@ void poll(){
 
                 }//else{//stay with my own opinion
 
-                  //  currentopinion = option_received_from_neighbour;
+                //  currentopinion = option_received_from_neighbour;
 
-               // }
+                // }
 
             }else{ //if I am uncommitted then get the opinion attained from neighbour
 
@@ -654,7 +654,7 @@ void poll(){
     option_received_from_neighbour = 0; //reset any option received from neighbour
     //go to exploration state
     current_state = EXPLORATION;
-    timer =  ran_expo(qnorm_lambda); // get the time for exploration
+    timer =  ran_expo(1.0/avg_exploration_time); // get the time for exploration
     last_changed = kilo_ticks;
     set_color(RGB(0, 0, 0));
 
@@ -878,7 +878,7 @@ void setup(){
     message.data[1] = currentopinion;
     message.data[2] = kilo_uid;
     message.crc = message_crc(&message);
-    timer =  ran_expo(qnorm_lambda); //get time to be in exploration state
+    timer =  ran_expo(1/avg_exploration_time); //get time to be in exploration state
 
 
 
@@ -901,12 +901,12 @@ void loop() {
 
     if(init_flag){  // initialization happened and messaged received from Kilogrid
 
-       // if (received_grid_msg_flag) {
-            //random_walk();
-            //update_grid_msg();
-           // check_if_against_a_wall();  // checks if the robot is on wall
-            // received_grid_msg_flag = false;
-       // }
+        // if (received_grid_msg_flag) {
+        //random_walk();
+        //update_grid_msg();
+        // check_if_against_a_wall();  // checks if the robot is on wall
+        // received_grid_msg_flag = false;
+        // }
 
         if (received_virtual_agent_msg_flag) {
             // update_virtual_agent_msg();
