@@ -90,9 +90,16 @@ typedef enum {
     DISSEMINATION,
     VoteOrNoise,
 } state;
+
+/* Enum for different wall function  states */
+typedef enum {
+    TURN_TO_AVOID_WALL,
+    STRAIGHT_TO_AVOID_WALL,
+    COMPLETE_WALL_AVOIDANCE,
+} wall_state;
 /*-----------------------------------------------------------------------------------------------*/
 state current_state = EXPLORATION;
-
+wall_state wall_function_state = TURN_TO_AVOID_WALL;
 /*-----------------------------------------------------------------------------------------------*/
 /* Motion related Variables                                                                      */
 /*-----------------------------------------------------------------------------------------------*/
@@ -100,12 +107,18 @@ motion_t current_motion_type = STOP;
 unsigned int turning_ticks = 0;
 const uint8_t max_turning_ticks = 150; //*** constant to set maximum rotation to turn during random walk
 const uint32_t max_straight_ticks = 300; //*** set the time to walk straight before randomly turning
+const uint8_t max_wall_avoidance_turning_ticks = 130;
+const uint32_t max_wall_avoidance_straight_ticks = 230;
 //const uint32_t broadcast_ticks = 32;
 uint32_t last_motion_ticks = 0;
+uint32_t last_motion_wall_ticks = 0;
 
 uint8_t kilogrid_commitment = 0;  // This is the initial commitment attained from kilogrid
 //float my_commitment_quality = 0.0;
 int last_changed = 0;
+bool wall_avoidance_turning = false;
+bool wall_avoidance_straight = false;
+
 
 //uint8_t communication_range = 0;  // communication range in cells
 
@@ -156,6 +169,7 @@ int wall_flag; //to check if wall signal or not
 /*-----------------------------------------------------------------------------------------------*/
 
 bool hit_wall = false;  // set to true if wall detected
+bool wall_avoidance_state = false;
 //to keep track of tiles and quality
 int total_tiles_found;
 int tiles_of_my_option;
@@ -239,7 +253,7 @@ void random_walk(){
 /*-----------------------------------------------------------------------------------------------*/
 /* Function to check if the robot is against the wall                                             */
 /*-----------------------------------------------------------------------------------------------*/
-void check_if_against_a_wall() {
+/*void check_if_against_a_wall() {
     // when the hitwall flag is true -- (either at the border tiles or white buffer)
     if(hit_wall){
         if( rand()%2 ) {
@@ -268,7 +282,55 @@ void check_if_against_a_wall() {
         turning_ticks = rand()%max_turning_ticks + 1;
 
     }
+}*/
+
+void wall_avoidance_function(){
+    wall_avoidance_state = true;
+    hit_wall = false;
+
+    if (wall_function_state == TURN_TO_AVOID_WALL){
+        set_color(RGB(3, 0, 3));
+        //printf("comes to turnning \n");
+        if( rand()%2 ) {
+            // while ((kilo_ticks - last_motion_ticks) < max_wall_avoidance_turning_ticks) {
+            /* perform a random turn */
+            set_motion(TURN_LEFT);
+            current_motion_type = TURN_LEFT;
+            // }
+        }else {
+            // while ((kilo_ticks - last_motion_ticks) < max_wall_avoidance_turning_ticks) {
+            /* perform a random turn */
+            set_motion(TURN_RIGHT);
+            current_motion_type = TURN_RIGHT;
+            //  }
+        }
+        last_motion_wall_ticks = kilo_ticks;
+        wall_function_state = STRAIGHT_TO_AVOID_WALL;
+    }
+    if (wall_function_state == STRAIGHT_TO_AVOID_WALL) {
+        //printf("comes to straight \n");
+
+        if ((kilo_ticks - last_motion_wall_ticks) > max_wall_avoidance_turning_ticks) {
+            /* start moving forward */
+            set_color(RGB(0, 3, 0));
+            last_motion_wall_ticks = kilo_ticks;
+            set_motion(FORWARD);
+            wall_function_state = COMPLETE_WALL_AVOIDANCE;
+
+        }
+    }
+    if (wall_function_state == COMPLETE_WALL_AVOIDANCE) {
+        //printf("comes to finish avoidance \n");
+
+        if ((kilo_ticks - last_motion_wall_ticks) > max_wall_avoidance_straight_ticks) {
+            last_motion_wall_ticks = kilo_ticks;
+            wall_function_state = TURN_TO_AVOID_WALL;
+            wall_avoidance_state = false;
+            set_color(RGB(0, 0, 0));
+        }
+    }
 }
+
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Function to get Exponential Distribution for timing to stay is Dissem state                   */
@@ -427,7 +489,7 @@ void gotoexploration(){
 
     //if time for exploration not over yet, do nothing else move on to dissemination state
     if ((kilo_ticks - last_changed) < timer) {//check if still within time for exploration state or not
-        check_if_against_a_wall(); //check if hitting the wall
+        //check_if_against_a_wall(); //check if hitting the wall
     } else{ //if not in exploration state
 
         findqualityratio(); //find quality of own opinion based on tiles incurred in the exploration cycle
@@ -468,7 +530,7 @@ void gotoexploration(){
 
 void donoisyswitch(){
     printf("opts for noisy switch noise fro kilgorid \n");
-    check_if_against_a_wall(); //are we getting a wall signal from Kilogrid
+    //check_if_against_a_wall(); //are we getting a wall signal from Kilogrid
 
 
     if(init_flag){  // initalization happened from Kilogrid
@@ -535,7 +597,8 @@ void gotodissemination(){
     //printf("enter dissm %d  %d \n", tiles_of_my_option,total_tiles_found);
 
     //random_walk(); //lets random walk again
-    check_if_against_a_wall();  //check if bot is not near or on wall
+
+    //check_if_against_a_wall();  //check if bot is not near or on wall
 
     if ((kilo_ticks - last_changed) < timer) { //if within dissemination time
 
@@ -916,9 +979,11 @@ void loop() {
 
     }
 
-    check_if_against_a_wall();
-
-    random_walk();
+    if ( wall_avoidance_state || hit_wall ) {
+        wall_avoidance_function();
+    } else {
+        random_walk();
+    }
 
     if (current_state == EXPLORATION){ // if state is set to 0
 
