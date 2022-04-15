@@ -861,6 +861,8 @@ void message_tx(){
 void message_tx_success(){ //if transmitted
     broadcast_msg = false; //set transmitted flag to false
     //set the colour
+    #ifndef SIMULATION
+
     if (currentopinion == 1){
         set_color(RGB(2, 0, 0));
         delay(10);
@@ -870,6 +872,7 @@ void message_tx_success(){ //if transmitted
         delay(10);
         set_color(RGB(0, 0, 0));
     }
+    #endif
 
 }
 message_t *message_tx()
