@@ -88,7 +88,7 @@ typedef enum {
 typedef enum {
     EXPLORATION,
     DISSEMINATION,
-    VoteOrNoise,
+    POLL_OR_READ_GROUND,
 } state;
 
 /* Enum for different wall function  states */
@@ -504,7 +504,7 @@ void gotoexploration(){
         /*
         if(timer == 0){ //if 0 tiles found of same opinion
             printf("timer is 00 here \n");
-            current_state = VoteOrNoise;//directly go to noisy switch or polling state
+            current_state = POLL_OR_READ_GROUND;//directly go to noisy switch or polling state
             // random_walk();
         }else{
             current_state = DISSEMINATION;//go to Dissemination mode
@@ -625,7 +625,7 @@ void gotodissemination(){
     }else{ //if time for dissem is over
         //check_if_against_a_wall();  //is the bot getting hit the wall message
         last_changed = kilo_ticks;
-        current_state = VoteOrNoise;//go to polling or noisy switch state
+        current_state = POLL_OR_READ_GROUND;//go to polling or noisy switch state
 
     }
     // random_walk();
@@ -999,7 +999,7 @@ void loop() {
 
 
 
-    if (current_state == VoteOrNoise){  // state is set to choose between Vote or Noise
+    if (current_state == POLL_OR_READ_GROUND){  // state is set to choose between Vote or Noise
 
         //get the random number 0-1 to flip between self-sourced or social
         double u = r2();
