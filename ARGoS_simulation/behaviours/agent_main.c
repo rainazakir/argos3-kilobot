@@ -447,22 +447,18 @@ void findqualityratio(){
 
 
 }
-
 void calculatedissemtime(){
 
+    double lambda = 1.0;
+
     if(MODEL == 1 && currentopinion == UNCOMMITTED){ // if MODEL is cross-inhibition and bot is uncommitted
-
-        timer =  ran_expo(1.0/avg_uncommitted_time); //set time to be in dissem state but will not talk
-        printf("timer is %f \n", 1.0/avg_uncommitted_time);
-
-
+        lambda = 1.0 / avg_uncommitted_time;  //set time to be in dissem state but will not talk
     } else {
-        double lambda = 1.0 / (min(1.0, qratio*2) * dissemparam);
-        timer = ran_expo(lambda);
-
-        printf("timer is %f \n", lambda);
-
+        lambda = 1.0 / (min(1.0, qratio*2) * dissemparam);
     }
+
+    timer = ran_expo(lambda);
+    printf("timer is %f \n", timer);
 
 
 }
