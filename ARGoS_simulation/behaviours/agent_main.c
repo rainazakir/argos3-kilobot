@@ -501,6 +501,7 @@ void gotoexploration(){
 
         calculatedissemtime(); //calculate the time that the bot should be disseminating based on quality found
 
+        /*
         if(timer == 0){ //if 0 tiles found of same opinion
             printf("timer is 00 here \n");
             current_state = VoteOrNoise;//directly go to noisy switch or polling state
@@ -509,7 +510,8 @@ void gotoexploration(){
             current_state = DISSEMINATION;//go to Dissemination mode
             // set_color(RGB(0, 0, 0));
         }
-
+        */
+        current_state = DISSEMINATION;//go to Dissemination mode
         last_changed = kilo_ticks;
 
         //reset the variable that are used to find the qr for next exploration-dissem cycle
