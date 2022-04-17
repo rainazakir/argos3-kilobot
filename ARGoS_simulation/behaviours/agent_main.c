@@ -50,8 +50,9 @@
 /*-----------------------------------------------------------------------------------------------*/
 /* Change these when running experiment                                                          */
 /*-----------------------------------------------------------------------------------------------*/
-#define MODEL 1   // 0 --> Voter Model      1 --> CrossInhibition
-double noise = 0.1; // SET THIS TO -1 FOR NO NOISE, 0.1--> 0.05, 0.5-->0.25
+#define MODEL 0   // 0 --> Voter Model      1 --> CrossInhibition
+double noise = -1; // SET THIS TO -1 FOR NO NOISE, 0.1--> 0.05, 0.5-->0.25
+int how_many_op = 3; //set the number of opinion in Kilogrid--> max is 4 for now
 /*-----------------------------------------------------------------------------------------------*/
 
 //opinion = A -->1   //opinion = B --> 2  //uncommited = C --> UNCOMITTED
@@ -447,6 +448,7 @@ void findqualityratio(){
 
 
 }
+
 void calculatedissemtime(){
 
     double lambda = 1.0;
@@ -477,8 +479,14 @@ void gotoexploration(){
     } else if (currentopinion == 2){
         set_color(RGB(0, 1, 1));
 
+    }else if(currentopinion == 3){
+        set_color(RGB(0,3,0));
+
+    }else if(currentopinion == 4){
+        set_color(RGB(0,0,3));
+
     }else{
-        set_color(RGB(2, 2, 0)); //uncommitted
+        set_color(RGB(1, 1, 0)); //uncomitted
 
     }
 
@@ -496,7 +504,6 @@ void gotoexploration(){
 
 
         calculatedissemtime(); //calculate the time that the bot should be disseminating based on quality found
-
         /*
         if(timer == 0){ //if 0 tiles found of same opinion
             printf("timer is 00 here \n");
@@ -507,8 +514,8 @@ void gotoexploration(){
             // set_color(RGB(0, 0, 0));
         }
         */
-        current_state = DISSEMINATION;//go to Dissemination mode
         last_changed = kilo_ticks;
+        current_state = DISSEMINATION;//go to Dissemination mode
 
         //reset the variable that are used to find the qr for next exploration-dissem cycle
         memset(foundmodules, 0, sizeof(foundmodules[0][0]) * 18 * 38);
@@ -550,6 +557,20 @@ void donoisyswitch(){
 
                 currentopinion = 2; //change option to B- Blue - 2
                 set_color(RGB(0, 1, 1));
+
+
+            } else if(kilogrid_commitment == 3){  //if its option b- Blue received from Kilogrid (3 for a normal blue tile and 9 for border blue tile)
+                printf("%d  changes commitment to 3 from kilogrid\n", kilogrid_commitment);
+
+                currentopinion = 3; //change option to B- Blue - 2
+                set_color(RGB(0, 1, 0));
+
+
+            }else if(kilogrid_commitment == 4){  //if its option b- Blue received from Kilogrid (3 for a normal blue tile and 9 for border blue tile)
+                printf("%d  changes commitment to 4 from kilogrid\n", kilogrid_commitment);
+
+                currentopinion = 4; //change option to B- Blue - 2
+                set_color(RGB(0, 1, 0));
 
 
             }
@@ -610,16 +631,22 @@ void gotodissemination(){
             } else if (currentopinion == 2){
                 set_color(RGB(0, 1, 1));
 
+            }else if(currentopinion == 3) {
+                set_color(RGB(0, 1, 0));
+
+            }else if(currentopinion == 4){
+                set_color(RGB(0, 0, 3));
+
             }
 
         }else{ //if uncommitted
-
             set_color(RGB(3, 3, 0)); //just light yellow
 
         }
 
     }else{ //if time for dissem is over
         //check_if_against_a_wall();  //is the bot getting hit the wall message
+
         last_changed = kilo_ticks;
         current_state = POLL_OR_READ_GROUND;//go to polling or noisy switch state
 
@@ -776,6 +803,12 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
                     }else if((received_option_kilogrid==2) && currentopinion == 2){ //if I am blue and I receive blue from Kilogrid
                         tiles_of_my_option +=1 ;
 
+                    }else if((received_option_kilogrid==3) && currentopinion == 3){ //if I am blue and I receive blue from Kilogrid
+                        tiles_of_my_option +=1 ;
+
+                    }else if((received_option_kilogrid==4) && currentopinion == 4){ //if I am blue and I receive blue from Kilogrid
+                        tiles_of_my_option +=1 ;
+
                     }
                 }
             }
@@ -869,9 +902,16 @@ void message_tx_success(){ //if transmitted
         set_color(RGB(0, 2, 2));
         delay(10);
         set_color(RGB(0, 0, 0));
+    } else if (currentopinion == 3){
+        set_color(RGB(0, 2, 0));
+        delay(10);
+        set_color(RGB(0, 0, 0));
+    }else if (currentopinion == 4){
+        set_color(RGB(0, 0, 3));
+        delay(10);
+        set_color(RGB(0, 0, 0));
     }
     #endif
-
 }
 message_t *message_tx()
 {
@@ -917,6 +957,7 @@ void set_message(){
 /*-----------------------------------------------------------------------------------------------*/
 void setup(){
 
+    printf("kilouid= %d \n",kilo_uid);
 
     srand(rand_hard());
 
@@ -929,13 +970,32 @@ void setup(){
     last_changed = kilo_ticks;
     message.type = FROMBOT; // set I am a bot
     // Quality A=1, B=2
+    if (how_many_op == 3) {
+        if (kilo_uid % 3 == 0) {
+            currentopinion = 1;
+        } else if (kilo_uid % 3 == 1) {
+            currentopinion = 2;
+        } else if (kilo_uid % 3 == 2) {
+            currentopinion = 3;
+        }
+    } else if(how_many_op == 2){
+        if (kilo_uid % 2 == 0) {
+            currentopinion = 1;
+        } else if (kilo_uid % 2 == 1) {
+            currentopinion = 2;
+        }
+    }else if (how_many_op == 4){
+        if (kilo_uid % 4 == 0) {
+            currentopinion = 1;
+        } else if (kilo_uid % 4 == 1) {
+            currentopinion = 2;
+        } else if (kilo_uid % 4 == 2) {
+            currentopinion = 3;
+        } else if(kilo_uid % 4 == 3){
+            currentopinion = 4;
+        }
 
-    if(kilo_uid % 2 == 0){ //choose muy opinion based on odd or even kilouid
-        currentopinion = 1;
-    }else{
-        currentopinion = 2;
     }
-
     // set parameters fro dissemination
     message.data[0] = currentopinion;
     //Opinion A=1 , B=2, U =3
