@@ -51,7 +51,7 @@
 /* Change these when running experiment                                                          */
 /*-----------------------------------------------------------------------------------------------*/
 #define MODEL 1   // 0 --> Voter Model      1 --> CrossInhibition
-double noise = -1; // SET THIS TO -1 FOR NO NOISE, 0.1--> 0.05, 0.5-->0.25
+double noise = 0.1; // SET THIS TO -1 FOR NO NOISE, 0.1--> 0.05, 0.5-->0.25
 /*-----------------------------------------------------------------------------------------------*/
 
 //opinion = A -->1   ≈Ω//opinion = B --> 2  //uncommited = C --> UNCOMITTED
@@ -59,7 +59,7 @@ int currentopinion; //1
 
 double timer; // to hold time to be in each state
 double avg_exploration_time = 3300.0; //***--> time to be in exploration state--> fixed
-double avg_uncommitted_time = 0;//200.0; // time to stay in dissemination for uncommitted agents
+double avg_uncommitted_time = 200;//200.0; // time to stay in dissemination for uncommitted agents
 double dissemparam = 1300.0;
 
 int foundmodules[18][38] = {0}; //to keep track of tiles visited in one exploration cycle
@@ -453,9 +453,9 @@ void calculatedissemtime(){
 
     if(MODEL == 1 && currentopinion == UNCOMMITTED){ // if MODEL is cross-inhibition and bot is uncommitted
 
-        lambda = 1.0 / 0.50*avg_uncommitted_time;  //set time to be in dissem state but will not talk
-
-        printf("timer is %f and %f in m1 and uncomm \n", 1.0/0.50*avg_uncommitted_time,lambda);
+        lambda = 1.0 / (0.50*avg_uncommitted_time);  //set time to be in dissem state but will not talk
+        printf("comes to uncommitted dissem loop, ");
+        //printf("timer is %f and %f in m1 and uncomm \n", 1.0/(0.50*avg_uncommitted_time),lambda);
     } else {
         lambda = 1.0 / (min(1.0, qratio*2) * dissemparam);
     }
@@ -463,10 +463,10 @@ void calculatedissemtime(){
     timer = ran_expo(lambda);
    // printf("timer of dissem pre- set  %f \n", timer);
 
-    if(isinf(timer)){ //can happen when avg_uncommitted_time is 0
-        timer = 0; //get time for exploration
-    }
-    printf("timer of dissem set  %f \n", timer);
+    //if(isinf(timer)){ //can happen when avg_uncommitted_time is 0
+    //    timer = 0; //get time for exploration
+    //}
+    printf("timer of dissem set  %f and lambda is %f \n", timer, lambda);
 
 
 }
@@ -720,11 +720,11 @@ void poll(){
     //go to exploration state
     current_state = EXPLORATION;
     if(currentopinion == UNCOMMITTED){
-        timer = ran_expo(1.0 / 0.5*avg_uncommitted_time); //get time for exploration
-        if(isinf(timer)){
-            timer = 0; //get time for exploration
-        }
-        printf("%f  is the uncommitted exploration time\n", timer);
+        timer = ran_expo(1.0 / (0.5*avg_uncommitted_time)); //get time for exploration
+       // if(isinf(timer)){
+         //   timer = 0; //get time for exploration
+        //}
+        printf("%f  is the uncommitted exploration time and its lambda is %f \n", timer,( 1.0 / (0.5*avg_uncommitted_time)));
     }else {
         timer = ran_expo(1.0 / avg_exploration_time); //get time for exploration
     }
