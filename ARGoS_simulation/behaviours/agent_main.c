@@ -63,6 +63,8 @@ double avg_uncommitted_time = 200.0; // time to stay in dissemination for uncomm
 double dissemparam = 1300.0;
 
 int foundmodules[18][38] = {0}; //to keep track of tiles visited in one exploration cycle
+int totalmodules[18][38] = {0}; //to keep track of tiles visited in one exploration cycle
+
 float qratio; //to store quality based ont the tiles explored
 
 
@@ -173,7 +175,13 @@ bool wall_avoidance_state = false;
 //to keep track of tiles and quality
 int total_tiles_found;
 int tiles_of_my_option;
+
 int option_received_from_neighbour;
+int total_tiles_environment;
+int tiles_of_op_a;
+int tiles_of_op_b;
+int tiles_of_no_option;
+
 
 ///NOT USED ANYMORE
 //int neighbourid[SWARMSIZE] = {};//***change the size if running with more than 25 kilobots--> mention no of robots used in size
@@ -439,11 +447,11 @@ void calculatedissemtime(){
 
 void findqualityratio(){
     if (tiles_of_my_option > 0){
-        qratio = ((float)tiles_of_my_option/total_tiles_found);
+        qratio = ((float)tiles_of_my_option/tiles_of_op_a);
     } else {
         qratio = 0;
     }
-    printf("%d tile my op %d total tiles and qr %f \n", tiles_of_my_option,total_tiles_found, qratio);
+    printf("%d tile my op %d total tiles and qr %f \n", tiles_of_my_option,tiles_of_op_a, qratio);
 
 
 }
@@ -587,6 +595,7 @@ void gotoexploration(){
         //reset the variable that are used to find the qr for next exploration-dissem cycle
         memset(foundmodules, 0, sizeof(foundmodules[0][0]) * 18 * 38);
         tiles_of_my_option = 0;
+        tiles_of_no_option = 0;
         total_tiles_found = 0;
         qratio = 0;
         // set_color(RGB(0, 0, 0));
@@ -773,7 +782,7 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
 
 
         if (current_state == EXPLORATION){ //if the bot is in exploration state
-            if(received_option_kilogrid != 0){ //if the the bot is not on the wall-white border
+            if(wall_flag == 0){ //if the the bot is not on the wall-white border
                 if (foundmodules[msg->data[0]][msg->data[1]] == 0){ //if tile not counted previously
 
                     foundmodules[msg->data[0]][msg->data[1]] = 1; //set the flag that tile has been counted now
@@ -789,6 +798,25 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
             }
         }
 
+        if(wall_flag == 0){ //if the the bot is not on the wall-white border
+            if (totalmodules[msg->data[0]][msg->data[1]] == 0) { //if tile not counted previously
+
+                totalmodules[msg->data[0]][msg->data[1]] = 1; //set the flag that tile has been counted now
+
+                total_tiles_environment += 1;
+
+                if(received_option_kilogrid==1){ //if I am Red and I receive red from kilogrid
+                    tiles_of_op_a +=1 ;
+
+                }else if(received_option_kilogrid==2){ //if I am blue and I receive blue from Kilogrid
+                    tiles_of_op_b +=1 ;
+
+                }else if(received_option_kilogrid==0){ //if I am blue and I receive blue from Kilogrid
+                    tiles_of_no_option +=1 ;
+
+                }
+            }
+        }
         // printf("%hhu\n",msg->data[2]);
         // printf("%hhu\n",msg->data[3]);
         if (wall_flag == 62 || wall_flag == 42){  // robot sensed wall or near wall
