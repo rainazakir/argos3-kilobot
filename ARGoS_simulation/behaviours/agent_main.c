@@ -526,11 +526,11 @@ void poll(){
 
 
     option_received_from_neighbour = 0; //reset any option received from neighbour
-    //go to exploration state
-    // current_state = EXPLORATION;
-    //timer =  ran_expo(1.0/avg_exploration_time); // get the time for exploration
-    //last_changed = kilo_ticks;
-    //set_color(RGB(0, 0, 0));
+    go to exploration state
+    current_state = EXPLORATION;
+    timer =  ran_expo(1.0/avg_exploration_time); // get the time for exploration
+    last_changed = kilo_ticks;
+    set_color(RGB(0, 0, 0));
 
 }
 
@@ -628,7 +628,8 @@ void donoisyswitch(){
 
             }else if(kilogrid_commitment == 0){  //if its option b- Blue received from Kilogrid (3 for a normal blue tile and 9 for border blue tile)
                 printf("%d  changes commitment to no commitment 0 from kilogrid\n", kilogrid_commitment);
-                poll();
+                //do nothing
+		    //poll();
                 //currentopinion = 2; //change option to B- Blue - 2
                // set_color(RGB(0, 1, 1));
 
@@ -1008,15 +1009,15 @@ void loop() {
         //get the random number 0-1 to flip between self-sourced or social
         //double u = r2();
 
-        //if (u <= noise){ //switch to noise check
-           // set_color(RGB(2, 2, 0))
-        donoisyswitch(); //do noisy switch
+        if (u <= noise){ //switch to noise check
+            set_color(RGB(2, 2, 0))
+            donoisyswitch(); //do noisy switch
 
-      //  } else{ //Go to Voting
+        } else{ //Go to Voting
 
-            //poll();
+            poll();
 
-        //}
+        }
 
     }
     if(current_state == DISSEMINATION ){ // state is set to 1- Dissem
