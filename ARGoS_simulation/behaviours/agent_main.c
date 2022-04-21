@@ -526,7 +526,7 @@ void poll(){
 
 
     option_received_from_neighbour = 0; //reset any option received from neighbour
-    go to exploration state
+    //go to exploration state
     current_state = EXPLORATION;
     timer =  ran_expo(1.0/avg_exploration_time); // get the time for exploration
     last_changed = kilo_ticks;
@@ -1007,7 +1007,7 @@ void loop() {
     if (current_state == POLL_OR_READ_GROUND){  // state is set to choose between Vote or Noise
 
         //get the random number 0-1 to flip between self-sourced or social
-        //double u = r2();
+        double u = r2();
 
         if (u <= noise){ //switch to noise check
             set_color(RGB(2, 2, 0))
