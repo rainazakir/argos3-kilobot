@@ -1010,7 +1010,7 @@ void loop() {
         double u = r2();
 
         if (u <= noise){ //switch to noise check
-            set_color(RGB(2, 2, 0))
+            set_color(RGB(2, 2, 0));
             donoisyswitch(); //do noisy switch
 
         } else{ //Go to Voting
