@@ -60,7 +60,7 @@ int currentopinion; //1
 
 double timer; // to hold time to be in each state
 double avg_exploration_time = 3300.0; //***--> time to be in exploration state--> fixed
-double avg_uncommitted_time = 200.0; // time to stay in dissemination for uncommitted agents
+double avg_uncommitted_time = 400.0; // time to stay in dissemination for uncommitted agents
 double dissemparam = 1300.0;
 
 int foundmodules[18][38] = {0}; //to keep track of tiles visited in one exploration cycle
@@ -454,11 +454,15 @@ void calculatedissemtime(){
     double lambda = 1.0;
 
     if(MODEL == 1 && currentopinion == UNCOMMITTED){ // if MODEL is cross-inhibition and bot is uncommitted
-        lambda = 1.0 / avg_uncommitted_time;  //set time to be in dissem state but will not talk
+
+        lambda = 1.0 / (0.50*avg_uncommitted_time);  //set time to be in dissem state but will not talk
+        //printf("comes to uncommitted dissem loop, ");
+        //printf("timer is %f and %f in m1 and uncomm \n", 1.0/(0.50*avg_uncommitted_time),lambda);
     } else {
         lambda = 1.0 / (min(1.0, qratio*2) * dissemparam);
     }
 
+    timer = ran_expo(lambda);
     timer = ran_expo(lambda);
     printf("timer is %f \n", timer);
 
@@ -562,14 +566,14 @@ void donoisyswitch(){
             } else if(kilogrid_commitment == 3){  //if its option b- Blue received from Kilogrid (3 for a normal blue tile and 9 for border blue tile)
                 printf("%d  changes commitment to 3 from kilogrid\n", kilogrid_commitment);
 
-                currentopinion = 3; //change option to B- Blue - 2
+                currentopinion = 3; //change option to G- Green - 3
                 set_color(RGB(0, 1, 0));
 
 
             }else if(kilogrid_commitment == 4){  //if its option b- Blue received from Kilogrid (3 for a normal blue tile and 9 for border blue tile)
                 printf("%d  changes commitment to 4 from kilogrid\n", kilogrid_commitment);
 
-                currentopinion = 4; //change option to B- Blue - 2
+                currentopinion = 4; //change option to B- Brown - 4
                 set_color(RGB(0, 1, 0));
 
 
@@ -679,8 +683,8 @@ void poll(){
 
     if (new_message == 1){ //if bot seems to be getting a message from neighbour
 
-        new_message = 0; //set message received flag to 0-not received
-        option_received_from_neighbour = received_option; //consider the opinion of a message received from neighbour and save it
+        //new_message = 0; //set message received flag to 0-not received
+        //option_received_from_neighbour = received_option; //consider the opinion of a message received from neighbour and save it
 
 
         if (MODEL == 1){ //if cross inhibition
@@ -734,10 +738,20 @@ void poll(){
     }
 
 
-    option_received_from_neighbour = 0; //reset any option received from neighbour
+    //option_received_from_neighbour = 0; //reset any option received from neighbour
     //go to exploration state
     current_state = EXPLORATION;
-    timer =  ran_expo(1.0/avg_exploration_time); // get the time for exploration
+    if(currentopinion == UNCOMMITTED){
+        timer = ran_expo(1.0 / (0.5*avg_uncommitted_time)); //get time for exploration
+       // if(isinf(timer)){
+         //   timer = 0; //get time for exploration
+        //}
+	printf("%f  is the uncommitted exploration time and its lambda is %f \n", timer,( 1.0 / (0.5*avg_uncommitted_time)));
+    }else {
+	option_received_from_neighbour = 0;
+        new_message = 0;
+        timer = ran_expo(1.0 / avg_exploration_time); //get time for exploration
+    }
     last_changed = kilo_ticks;
     set_color(RGB(0, 0, 0));
 
