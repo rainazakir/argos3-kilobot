@@ -52,6 +52,7 @@
 /*-----------------------------------------------------------------------------------------------*/
 #define MODEL 1   // 0 --> Voter Model      1 --> CrossInhibition
 double noise = 0.1; // SET THIS TO -1 FOR NO NOISE, 0.1--> 0.05, 0.5-->0.25
+int how_many_op = 2; //set the number of opinion in Kilogrid--> max is 4 for now
 /*-----------------------------------------------------------------------------------------------*/
 
 //opinion = A -->1   //opinion = B --> 2  //uncommited = C --> UNCOMITTED
@@ -59,8 +60,8 @@ int currentopinion; //1
 
 double timer; // to hold time to be in each state
 double avg_exploration_time = 3300.0; //***--> time to be in exploration state--> fixed
-double avg_uncommitted_time = 200.0; // time to stay in dissemination for uncommitted agents
-double dissemparam = 1300.0;
+double avg_uncommitted_time = 2000; // time to stay in dissemination for uncommitted agents
+double dissemparam = 1200.0;
 
 int foundmodules[18][38] = {0}; //to keep track of tiles visited in one exploration cycle
 float qratio; //to store quality based ont the tiles explored
@@ -447,18 +448,22 @@ void findqualityratio(){
 
 
 }
+
 void calculatedissemtime(){
 
     double lambda = 1.0;
 
     if(MODEL == 1 && currentopinion == UNCOMMITTED){ // if MODEL is cross-inhibition and bot is uncommitted
-        lambda = 1.0 / avg_uncommitted_time;  //set time to be in dissem state but will not talk
+
+        lambda = 1.0 / (0.50*avg_uncommitted_time);  //set time to be in dissem state but will not talk
+        //printf("comes to uncommitted dissem loop, ");
+        //printf("timer is %f and %f in m1 and uncomm \n", 1.0/(0.50*avg_uncommitted_time),lambda);
     } else {
         lambda = 1.0 / (min(1.0, qratio*2) * dissemparam);
     }
 
     timer = ran_expo(lambda);
-    printf("timer is %f \n", timer);
+    printf("timer is %f and lambda is %f \n", timer, lambda) ;
 
 
 }
@@ -477,8 +482,14 @@ void gotoexploration(){
     } else if (currentopinion == 2){
         set_color(RGB(0, 1, 1));
 
+    }else if(currentopinion == 3){
+        set_color(RGB(0,3,0));
+
+    }else if(currentopinion == 4){
+        set_color(RGB(0,0,3));
+
     }else{
-        set_color(RGB(2, 2, 0)); //uncommitted
+        set_color(RGB(1, 1, 0)); //uncomitted
 
     }
 
@@ -496,7 +507,6 @@ void gotoexploration(){
 
 
         calculatedissemtime(); //calculate the time that the bot should be disseminating based on quality found
-
         /*
         if(timer == 0){ //if 0 tiles found of same opinion
             printf("timer is 00 here \n");
@@ -507,8 +517,8 @@ void gotoexploration(){
             // set_color(RGB(0, 0, 0));
         }
         */
-        current_state = DISSEMINATION;//go to Dissemination mode
         last_changed = kilo_ticks;
+        current_state = DISSEMINATION;//go to Dissemination mode
 
         //reset the variable that are used to find the qr for next exploration-dissem cycle
         memset(foundmodules, 0, sizeof(foundmodules[0][0]) * 18 * 38);
@@ -550,6 +560,20 @@ void donoisyswitch(){
 
                 currentopinion = 2; //change option to B- Blue - 2
                 set_color(RGB(0, 1, 1));
+
+
+            } else if(kilogrid_commitment == 3){  //if its option b- Blue received from Kilogrid (3 for a normal blue tile and 9 for border blue tile)
+                printf("%d  changes commitment to 3 from kilogrid\n", kilogrid_commitment);
+
+                currentopinion = 3; //change option to G- Green - 3
+                set_color(RGB(0, 1, 0));
+
+
+            }else if(kilogrid_commitment == 4){  //if its option b- Blue received from Kilogrid (3 for a normal blue tile and 9 for border blue tile)
+                printf("%d  changes commitment to 4 from kilogrid\n", kilogrid_commitment);
+
+                currentopinion = 4; //change option to B- Brown - 4
+                set_color(RGB(0, 1, 0));
 
 
             }
@@ -610,16 +634,22 @@ void gotodissemination(){
             } else if (currentopinion == 2){
                 set_color(RGB(0, 1, 1));
 
+            }else if(currentopinion == 3) {
+                set_color(RGB(0, 1, 0));
+
+            }else if(currentopinion == 4){
+                set_color(RGB(0, 0, 3));
+
             }
 
         }else{ //if uncommitted
-
             set_color(RGB(3, 3, 0)); //just light yellow
 
         }
 
     }else{ //if time for dissem is over
         //check_if_against_a_wall();  //is the bot getting hit the wall message
+
         last_changed = kilo_ticks;
         current_state = POLL_OR_READ_GROUND;//go to polling or noisy switch state
 
@@ -652,9 +682,10 @@ void poll(){
 
     if (new_message == 1){ //if bot seems to be getting a message from neighbour
 
-        new_message = 0; //set message received flag to 0-not received
-        option_received_from_neighbour = received_option; //consider the opinion of a message received from neighbour and save it
-
+        //new_message = 0; //set message received flag to 0-not received
+  //      if(currentopinion != UNCOMMITTED){
+		option_received_from_neighbour = received_option; //consider the opinion of a message received from neighbour and save it
+//	}
 
         if (MODEL == 1){ //if cross inhibition
 
@@ -707,10 +738,20 @@ void poll(){
     }
 
 
-    option_received_from_neighbour = 0; //reset any option received from neighbour
+    //option_received_from_neighbour = 0; //reset any option received from neighbour
     //go to exploration state
     current_state = EXPLORATION;
-    timer =  ran_expo(1.0/avg_exploration_time); // get the time for exploration
+    if(currentopinion == UNCOMMITTED){
+        timer = ran_expo(1.0 / (0.5*avg_uncommitted_time)); //get time for exploration
+        // if(isinf(timer)){
+        //   timer = 0; //get time for exploration
+        //}
+        printf("%f  is the uncommitted exploration time and its lambda is %f \n", timer,( 1.0 / (0.5*avg_uncommitted_time)));
+    }else {
+        option_received_from_neighbour = 0;
+        new_message = 0;
+        timer = ran_expo(1.0 / avg_exploration_time); //get time for exploration
+    }
     last_changed = kilo_ticks;
     set_color(RGB(0, 0, 0));
 
@@ -774,6 +815,12 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
                         tiles_of_my_option +=1 ;
 
                     }else if((received_option_kilogrid==2) && currentopinion == 2){ //if I am blue and I receive blue from Kilogrid
+                        tiles_of_my_option +=1 ;
+
+                    }else if((received_option_kilogrid==3) && currentopinion == 3){ //if I am blue and I receive blue from Kilogrid
+                        tiles_of_my_option +=1 ;
+
+                    }else if((received_option_kilogrid==4) && currentopinion == 4){ //if I am blue and I receive blue from Kilogrid
                         tiles_of_my_option +=1 ;
 
                     }
@@ -859,7 +906,7 @@ void message_tx(){
 void message_tx_success(){ //if transmitted
     broadcast_msg = false; //set transmitted flag to false
     //set the colour
-    #ifndef SIMULATION
+#ifndef SIMULATION
 
     if (currentopinion == 1){
         set_color(RGB(2, 0, 0));
@@ -869,9 +916,16 @@ void message_tx_success(){ //if transmitted
         set_color(RGB(0, 2, 2));
         delay(10);
         set_color(RGB(0, 0, 0));
+    } else if (currentopinion == 3){
+        set_color(RGB(0, 2, 0));
+        delay(10);
+        set_color(RGB(0, 0, 0));
+    }else if (currentopinion == 4){
+        set_color(RGB(0, 0, 3));
+        delay(10);
+        set_color(RGB(0, 0, 0));
     }
-    #endif
-
+#endif
 }
 message_t *message_tx()
 {
@@ -917,6 +971,7 @@ void set_message(){
 /*-----------------------------------------------------------------------------------------------*/
 void setup(){
 
+    printf("kilouid= %d \n",kilo_uid);
 
     srand(rand_hard());
 
@@ -929,13 +984,33 @@ void setup(){
     last_changed = kilo_ticks;
     message.type = FROMBOT; // set I am a bot
     // Quality A=1, B=2
+    if (how_many_op == 3) {
+        if (kilo_uid % 3 == 0) {
+            currentopinion = 1;
+        } else if (kilo_uid % 3 == 1) {
+            currentopinion = 2;
+        } else if (kilo_uid % 3 == 2) {
+            currentopinion = 3;
+        }
+    } else if(how_many_op == 2){
+        if(kilo_uid % 2 == 0){ //choose muy opinion based on odd or even kilouid
+            currentopinion = 1;
+        }else{
+            currentopinion = 2;
+        }
 
-    if(kilo_uid % 2 == 0){ //choose muy opinion based on odd or even kilouid
-        currentopinion = 1;
-    }else{
-        currentopinion = 2;
+    }else if (how_many_op == 4){
+        if (kilo_uid % 4 == 0) {
+            currentopinion = 1;
+        } else if (kilo_uid % 4 == 1) {
+            currentopinion = 2;
+        } else if (kilo_uid % 4 == 2) {
+            currentopinion = 3;
+        } else if(kilo_uid % 4 == 3){
+            currentopinion = 4;
+        }
+
     }
-
     // set parameters fro dissemination
     message.data[0] = currentopinion;
     //Opinion A=1 , B=2, U =3
