@@ -122,27 +122,38 @@ void CKilogrid::PostStep(){
        /* Go through the kilobots */
        int op1 = 0;
        int op2 = 0;
+       int op3 = 0;
+       int op4 = 0;
        int unc = 0;
-    
-   for (unsigned int i = 0; i < kilobot_entities.size(); i++) {
+
+
+    for (unsigned int i = 0; i < kilobot_entities.size(); i++) {
         //printf( debug_info_kilobots[i]->commitement);
         //printf("%d\n",debug_info_kilobots[i]->currentopinion);
-       
+
         if(debug_info_kilobots[i]->currentopinion == 1){
-           op1 +=1;
-       }
-              
-       if(debug_info_kilobots[i]->currentopinion == 2){
-           op2 +=1;
-       }
-                 
-       if(debug_info_kilobots[i]->currentopinion == 99){
-           unc +=1;
-       }
-       
-   }
+            op1 +=1;
+        }
+
+        if(debug_info_kilobots[i]->currentopinion == 2){
+            op2 +=1;
+        }
+
+        if(debug_info_kilobots[i]->currentopinion == 3){
+            op3 +=1;
+        }
+
+        if(debug_info_kilobots[i]->currentopinion == 4){
+            op4 +=1;
+        }
+
+        if(debug_info_kilobots[i]->currentopinion == 99){
+            unc +=1;
+        }
+
+    }
  
-        m_cOutput << GetSpace().GetSimulationClock() << "    " << op1 << " " << op2 <<  " "  << unc << std::endl;
+        m_cOutput << GetSpace().GetSimulationClock() << "    " << op1 << " " << op2 <<  " "  << op3 <<  " " << op4 <<  " " << unc << std::endl;
 }
 
 
